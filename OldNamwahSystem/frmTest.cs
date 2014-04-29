@@ -1,0 +1,41 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Linq;
+using System.Windows.Forms;
+using DevExpress.XtraEditors;
+using OldNamwahSystem.Func;
+namespace OldNamwahSystem
+{
+    public partial class frmTest : DevExpress.XtraEditors.XtraForm
+    {
+        public frmTest()
+        {
+            InitializeComponent();
+        }
+
+        private void btnPriority_Click(object sender, EventArgs e)
+        {
+            string OriList = " 0 (1498 ), -6  (602) ";
+            OriList = " 14-Jan-01 (65), 14-Jan-06 (610), 14-Jan-15 (180), 14-Jan-16 (633), 14-Feb-19 (10), 14-Apr-23 (602)";
+
+            XtraMessageBox.Show(string.Format("Original : {0}\nSort : {1}\nAdd : {2}\nMove : {3}", 
+                                                OriList, 
+                                                SplitOrder.SortPromisedDateList(OriList, "DESC"), 
+                                                SplitOrder.FillPromisedDateList(OriList, 10000, DateTime.Today), 
+                                                SplitOrder.FillPromisedDateList(OriList, 10, DateTime.Today)));
+
+/*
+            XtraMessageBox.Show(string.Format("Original : {0}\nSort : {1}\nAdd : {2}\nMove : {3}", 
+                                                OriList, 
+                                                Test.SortPriorityList(OriList, "DESC"), 
+                                                Test.FillPriorityList(OriList, 10000, 3), 
+                                                Test.FillPriorityList(OriList, 10, 3)));
+*/
+
+        }
+    }
+}
