@@ -24,8 +24,8 @@ namespace OldNamwahSystem
             SkinManager.EnableFormSkins();
             UserLookAndFeel.Default.SetSkinStyle("DevExpress Style");
             GlobalContext.Properties["appname"] = "OldNamwahSystem";
-            string Log4NetPath = string.Format("{0}\\{1}", Application.StartupPath, "Log4NetFromTom.xml");
-            //string Log4NetPath = string.Format("{0}\\{1}", Application.StartupPath, "Log4Net.Config");
+            string Log4NetPath = string.Format("{0}\\{1}", @"\\NWCITRIX\AppLogFiles", "Log4NetFromTom.Config");
+            //Log4NetPath = string.Format("{0}\\{1}", Application.StartupPath, "Log4Net.Config");
             log4net.Config.XmlConfigurator.ConfigureAndWatch(new System.IO.FileInfo(Log4NetPath));
             
             Application.Run(new frmMain());

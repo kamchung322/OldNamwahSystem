@@ -51,8 +51,62 @@ namespace OldNamwahSystem
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            navBarTest.Visible = Glob.IsDebugMode;
             Logger.Info(string.Format("Debug Mode is {0}", Glob.IsDebugMode));
+            CheckingSecurity();
+        }
+
+        private void navBarFromWHLabel_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
+        {
+            frmFromWHLabel frmFromWHLabel = new frmFromWHLabel();
+            frmFromWHLabel.MdiParent = this;
+            frmFromWHLabel.Show();
+        }
+
+        private void navBarDeductFromWH_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
+        {
+            frmDeductFromWH frmDeductFromWH = new frmDeductFromWH();
+            frmDeductFromWH.MdiParent = this;
+            frmDeductFromWH.Show();
+        }
+
+        private void navBarShipment_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
+        {
+            frmShipment frmShipment = new frmShipment();
+            frmShipment.MdiParent = this;
+            frmShipment.Show();
+        }
+
+        private void CheckingSecurity()
+        {
+            navBarTest.Visible = false; 
+
+            ServerHelper.UserName = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToUpper();
+
+            if (ServerHelper.UserName == @"NWNET\IT002" || ServerHelper.UserName == @"NWNET\KENNETH")
+            {
+                navBarTest.Visible = true;
+                return;
+            }
+            else if (ServerHelper.UserName != @"NWNET\LINDA")
+            {
+                navBarFQCShipment.Visible = false;
+            }
+            else if (ServerHelper.UserName != @"NWNET\XK02" && 
+                    ServerHelper.UserName != @"NWNET\K_CLERK" && 
+                    ServerHelper.UserName != @"NWNET\YHHE" && 
+                    ServerHelper.UserName != @"NWNET\FJWANG")
+            {
+                navBarShipmentExit.Visible = false;
+                navBarDeductFromWH.Visible = false;
+            }
+            // xk02, k_clerk, yhhe
+        }
+
+        private void navBarManualLabel_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
+        {
+            frmManualLabel frmLabel = new frmManualLabel();
+            frmLabel.MdiParent = this;
+            frmLabel.Show();
         }
     }
 }

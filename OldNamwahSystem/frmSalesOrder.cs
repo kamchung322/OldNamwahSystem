@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using OldNamwahSystem.BO;
+using OldNamwahSystem.Func;
 
 namespace OldNamwahSystem
 {
@@ -20,11 +21,10 @@ namespace OldNamwahSystem
 
         private void btnReload_Click(object sender, EventArgs e)
         {
-            LoadShipment();
-            txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
+            LoadSOLine();
         }
 
-        private void LoadShipment()
+        private void LoadSOLine()
         {
             StringBuilder SBSQL = new StringBuilder();
             string StrSQL = "";
@@ -61,8 +61,14 @@ namespace OldNamwahSystem
             {
                 StrSQL = string.Format(" WHERE ({0})", SBSQL.ToString().Substring(5, SBSQL.ToString().Length - 5));
             }
-            
-            gridSOLine.DataSource = SalesOrderLine.LoadListMySQL(StrSQL, "");
+
+            List<SalesOrderLine> SOLines = SalesOrderLine.LoadListMySQL(StrSQL, "");
+
+            if (bool.Parse(chkSplitOrder.EditValue.ToString()))
+                SOLines = Func.SplitOrder.SplitSOLineByDateAndPriority(SOLines);
+
+            gridSOLine.DataSource = SOLines;
+            txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
         }
 
         private void frmSalesOrder_Load(object sender, EventArgs e)
@@ -72,6 +78,12 @@ namespace OldNamwahSystem
             cboStatus.Properties.Items.Add("已完成");
             cboStatus.Text = "未完成";
 
+            if (ServerHelper.UserName != @"NWNET\IT002" && 
+                ServerHelper.UserName != @"NWNET\KENNETH")
+            {
+                //ColPrice.View = false;
+                ColPrice.Visible = false; 
+            }
         }
     }
 }

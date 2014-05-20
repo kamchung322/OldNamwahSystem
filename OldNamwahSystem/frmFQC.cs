@@ -33,7 +33,7 @@ namespace OldNamwahSystem
 
         private void txtJSNo_Leave(object sender, EventArgs e)
         {
-            txtJSNo.Text = txtJSNo.Text.Trim();
+            txtJSNo.Text = txtJSNo.Text.ToUpper().Trim();
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
@@ -243,6 +243,7 @@ namespace OldNamwahSystem
         private void btnCancel_Click(object sender, EventArgs e)
         {
             EnableFindButton(true);
+            ClearAll();
             btnPrintBoxLabel.Enabled = false;
             txtJSNo.SelectAll();
             txtJSNo.Focus();
@@ -298,7 +299,7 @@ namespace OldNamwahSystem
             Item item = Item.Load(txtPartNo.Text);
 
             if (item != null)
-                IrLabel.ItemNo = string.Format("{0}-{1}", item.CustomerPN, txtRevision.Text);
+                IrLabel.ItemNo = string.Format("{0}-{1}", item.CustomerItemNo, txtRevision.Text);
 
             IrLabel.IRNo = txtIRNo.Text;
             IrLabel.Inspector = txtInspector.Text;
@@ -329,6 +330,9 @@ namespace OldNamwahSystem
                 return false;
             }
 
+            if (Glob.IsDebugMode)
+                return true;
+
             JS.ActiveQty = int.Parse(txtShipQty.Text);
             JS.FQCInspectionDate = DateTime.Now;
             JS.FQCInspector = txtInspector.Text;
@@ -351,7 +355,7 @@ namespace OldNamwahSystem
             WHHistory.Supplier = "FQC";
             WHHistory.Remark = txtRevision.Text;
             WHHistory.CreatedBy = ServerHelper.UserName;
-            WHHistory.SaveNewRecord();
+            WHHistory.InsertToExchange();
 
             SoCompress SoComp = new SoCompress();
             SoComp.Item = Item.Load(txtPartNo.Text);
@@ -361,7 +365,6 @@ namespace OldNamwahSystem
             SoComp.ShipQty = WHQty;
             SoComp.Calc();
             SOCompressList.Add(SoComp);
-
         }
 
         private bool ShipToSalesOrder()
@@ -399,6 +402,11 @@ namespace OldNamwahSystem
 
             return true;
 
+        }
+
+        private void txtIRNo_Leave(object sender, EventArgs e)
+        {
+            txtIRNo.Text = txtIRNo.Text.ToUpper().Trim();
         }
     }
 }

@@ -8,6 +8,8 @@ using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using OldNamwahSystem.Func;
+using OldNamwahSystem.BO;
+
 namespace OldNamwahSystem
 {
     public partial class frmTest : DevExpress.XtraEditors.XtraForm
@@ -36,6 +38,39 @@ namespace OldNamwahSystem
                                                 Test.FillPriorityList(OriList, 10, 3)));
 */
 
+        }
+
+        private void btnShipment_Click(object sender, EventArgs e)
+        {
+            Shipment Shipment = Shipment.LoadMySQL("XS1940368");
+
+            Shipment.InsertAllRecord();
+
+        }
+
+        private void btnTestStringSplit_Click(object sender, EventArgs e)
+        {
+            string[] CartonNos = txtStringList.Text.Split(',');
+            string CartonNo = txtCartonNo.Text.Trim();
+            List<int> ListCarton = new List<int>();
+
+            ListCarton.Add(int.Parse(CartonNo));
+
+            foreach (string C in CartonNos)
+            {
+                if (C != CartonNo && C != "")
+                    ListCarton.Add(int.Parse(C));
+            }
+
+            ListCarton.Sort();
+            txtStringList.Text = "";
+
+            foreach (int C in ListCarton)
+            {
+                txtStringList.Text = string.Format("{0},{1}", txtStringList.Text, C);
+            }
+
+            txtStringList.Text = txtStringList.Text.Substring(1, txtStringList.Text.Length - 1);
         }
     }
 }
