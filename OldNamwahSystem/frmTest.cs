@@ -72,5 +72,17 @@ namespace OldNamwahSystem
 
             txtStringList.Text = txtStringList.Text.Substring(1, txtStringList.Text.Length - 1);
         }
+
+        private void btnSOLines_Click(object sender, EventArgs e)
+        {
+            List<SalesOrderLine> SOLines = SalesOrderLine.LoadListMySQL("WHERE CustomerItemNo = '238370214' ", "");
+            SOLines = SplitOrder.SplitSOLineByDateAndPriority(SOLines);
+            SOLines = SplitOrder.SortSOLines(SOLines);
+
+            foreach(SalesOrderLine SOLine in SOLines)
+            {
+                System.Diagnostics.Debug.Print(string.Format("Date : {0}.  Priority : {1}", SOLine.PromisedDate, SOLine.Priority));
+            }
+        }
     }
 }

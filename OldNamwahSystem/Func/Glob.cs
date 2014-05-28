@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace OldNamwahSystem.Func
 {
     class Glob
     {
-        public static bool IsDebugMode = true;
-        public static string UserName = "";
+        public static bool IsDebugMode = false;
+        public static string UserName = "Nam Wah System";
+        public static string DefaultDatabase = "oldnamwahsystem"; // "test_nws"; //"oldnamwahsystem";
 
-        public static void AddADOHistory(ADODB.Record rst, string history)
+        public static string AddHistory(string OriginalHistory, string Message)
         {
-            rst.Fields["nw:history"].Value = string.Format("{0} {1} - {2}\n{3}",
-                DateTime.Now.ToString("yyyy-MM-dd hh:mm"), Glob.UserName, history,
-                rst.Fields["nw:history"].Value.ToString());
+            return string.Format("{0} {1} - {2}\n{3}",
+                    DateTime.Now.ToString("yyyy-MM-dd hh:mm"), Glob.UserName,
+                    Message, OriginalHistory);
         }
 
-        public static void IncreaseShipmentBarcode(int no)
+        public static void IncreaseShipmentBarcode(int No)
         {
-            string Prefix = "", Barcode = "";
+            string Prefix = "";
             int NextSONo = 0;
-            string BarcodePath = "http://nwszmail/public/namwah/system/barcodes/SZ_ShipOrderCode.EML";
+            const string BarcodePath = "http://nwszmail/public/namwah/system/barcodes/SZ_ShipOrderCode.EML";
 
             try
             {
@@ -34,7 +34,7 @@ namespace OldNamwahSystem.Func
                 Prefix = Rec.Fields["nw:barcode:prefix"].Value.ToString();
                 NextSONo = int.Parse(Rec.Fields["nw:barcode:nextnumber"].Value.ToString());
 
-                Rec.Fields["nw:barcode:nextnumber"].Value = NextSONo + no;
+                Rec.Fields["nw:barcode:nextnumber"].Value = NextSONo + No;
                 Rec.Fields.Update();
                 Rec = null;
 
@@ -84,6 +84,7 @@ namespace OldNamwahSystem.Func
 
             return Barcode;
         }
+
 
     }
 }

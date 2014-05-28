@@ -78,8 +78,8 @@ namespace OldNamwahSystem
             cboStatus.Properties.Items.Add("已完成");
             cboStatus.Text = "未完成";
 
-            if (ServerHelper.UserName != @"NWNET\IT002" && 
-                ServerHelper.UserName != @"NWNET\KENNETH")
+            if (Glob.UserName != @"NWNET\IT002" &&
+                Glob.UserName != @"NWNET\KENNETH")
             {
                 //ColPrice.View = false;
                 ColPrice.Visible = false; 

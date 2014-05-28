@@ -1,38 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using MySql.Data;
+using MySql.Data.MySqlClient;
 
 namespace OldNamwahSystem.Func
 {
     class ServerHelper
     {
-        public static ADODB.Connection ConnectMySQL()
+        public static MySqlConnection ConnectToMySQL()
         {
-            return ServerHelper.ConnectMySQL("OldNamwahSystem");
+            //return ServerHelper.ConnectToMySQL("OldNamwahSystem");
+            return ServerHelper.ConnectToMySQL(Glob.DefaultDatabase);
         }
 
-        public static ADODB.Connection ConnectMySQL(string DBName)
+        public static MySqlConnection ConnectToMySQL(string DBName)
         {
-            String StrConnect;
-            ADODB.Connection Cnn = new ADODB.Connection();
-
-            // MySQL ODBC 5.2 Unitcode Driver
-            /* StrConnect = "Driver={MySQL ODBC 5.2 Unicode Driver};Server=NWERP;" & _
-            "Port=3306;Option=4;Database=cheermain;Uid=kenneth;Pwd=kenneth"
-            */
-
-            // MySQL ODBC 5.1 Driver
-            StrConnect = string.Format("Driver={0};Server=NWERP;Port=3306;Option=4;Database={1};Uid=kenneth;Pwd=kenneth", "MySQL ODBC 5.1 Driver", DBName);
-
-            /*
-            StrConnect = "Driver={MySQL ODBC 5.1 Driver};Server=NWERP;" +
-                "Port=3306;Option=4;Database=OldNamwahSystem;Uid=kenneth;Pwd=kenneth";
-*/
-
-            Cnn.ConnectionString = StrConnect;
-            Cnn.Open();
-            return Cnn;
+            string StrConn = string.Format("server=nwcitrix;uid=kenneth;pwd=kenneth;database={0}", DBName);
+            MySqlConnection cnn = new MySqlConnection(StrConn);
+            cnn.Open();
+            return cnn;
         }
 
         public static ADODB.Connection ConnectExchange(string Path)
@@ -43,10 +30,5 @@ namespace OldNamwahSystem.Func
             Cnn.Open(Path, "Namwah", "ParaW0rld", -1);
             return Cnn;
         }
-
-        public static string UserName = "";
-
-
-
     }
 }

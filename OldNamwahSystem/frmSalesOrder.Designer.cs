@@ -360,7 +360,6 @@
             this.gridView1.OptionsBehavior.Editable = false;
             this.gridView1.OptionsSelection.MultiSelect = true;
             this.gridView1.OptionsView.ShowFooter = true;
-            this.gridView1.OptionsView.ShowGroupPanel = false;
             this.gridView1.SortInfo.AddRange(new DevExpress.XtraGrid.Columns.GridColumnSortInfo[] {
             new DevExpress.XtraGrid.Columns.GridColumnSortInfo(this.ColOrderNo, DevExpress.Data.ColumnSortOrder.Ascending),
             new DevExpress.XtraGrid.Columns.GridColumnSortInfo(this.ColOrderIndex, DevExpress.Data.ColumnSortOrder.Ascending)});

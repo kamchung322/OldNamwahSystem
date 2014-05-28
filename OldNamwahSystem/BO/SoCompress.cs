@@ -20,6 +20,7 @@ namespace OldNamwahSystem.BO
             foreach (Shipment Shipment in Shipments)
             {
                 Key = Shipment.SalesOrderNo + Shipment.ItemNo + Shipment.ShipMethod;
+                Shipment.Item = Item.Load(Shipment.ItemNo);
 
                 if (DictSoCompress.ContainsKey(Key))
                 {
@@ -200,7 +201,7 @@ namespace OldNamwahSystem.BO
             {
                 _Item = value;
 
-                if (Revision == "")
+                if (Revision == "" && _Item != null)
                     Revision = _Item.CustomerRevision;
             }
         }

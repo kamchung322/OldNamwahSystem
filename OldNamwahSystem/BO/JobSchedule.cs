@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using DevExpress.Xpo;
 using log4net;
+using OldNamwahSystem.Func;
 
 namespace OldNamwahSystem.BO
 {
@@ -19,9 +18,9 @@ namespace OldNamwahSystem.BO
             ADODB.Record Rec = new ADODB.Record();
             JobSchedule JS = new JobSchedule();
 
-            Logger.Info(string.Format("Order No : {0}.  Start.", StrJSNo));
+            Logger.Info(string.Format("开始.  单号 : {0}.", StrJSNo));
 
-            Cnn = Func.ServerHelper.ConnectExchange(JSPATH);
+            Cnn = ServerHelper.ConnectExchange(JSPATH);
 
             try
             {
@@ -30,40 +29,38 @@ namespace OldNamwahSystem.BO
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("Order No : {0}.  Error : {1}", StrJSNo, ex.Message));
+                Logger.Error(string.Format("单号 : {0}.  原因 : {1}", StrJSNo, ex.Message));
                 return null;
             }
 
-            Logger.Info(string.Format("Order No : {0}.  End.", StrJSNo));
+            Logger.Info(string.Format("结束.  单号 : {0}.", StrJSNo));
 
             return JS;
         }
 
         private void InitFromRec(ADODB.Record Rec)
         {
-            if (Rec.Fields["nw:cellline"].Value != null)
-                CellLine = Rec.Fields["nw:cellline"].Value.ToString();
-
-            FQCInspectionDate = DateTime.Parse(Rec.Fields["nw:fqc:inspectiondate"].Value.ToString());
-            FQCInspector = Rec.Fields["nw:fqc:inspector"].Value.ToString();
-            ActiveQty = double.Parse(Rec.Fields["nw:js:activeqty"].Value.ToString());
-            IrNo = Rec.Fields["nw:js:irno"].Value.ToString();
-            Location = Rec.Fields["nw:js:location"].Value.ToString();
-            NeedDate = DateTime.Parse(Rec.Fields["nw:js:needdate"].Value.ToString());
-            NeedQty = double.Parse(Rec.Fields["nw:js:needqty"].Value.ToString());
-            OrderNo = Rec.Fields["nw:js:no"].Value.ToString();
-            OrderStatus = Rec.Fields["nw:js:status"].Value.ToString();
-            Material = Rec.Fields["nw:material"].Value.ToString();
-            ItemName = Rec.Fields["nw:partname"].Value.ToString();
-            ItemNo = Rec.Fields["nw:partno"].Value.ToString();
-            ItemType = Rec.Fields["nw:parttype"].Value.ToString();
-            ActiveLocation = Rec.Fields["nw:js:activelocation"].Value.ToString();
+            CellLine = ExchangeHelper.GetStringField(Rec.Fields["nw:cellline"]);
+            FQCInspectionDate = ExchangeHelper.GetDateTimeField(Rec.Fields["nw:fqc:inspectiondate"]);
+            FQCInspector = ExchangeHelper.GetStringField(Rec.Fields["nw:fqc:inspector"]);
+            ActiveQty = ExchangeHelper.GetDoubleField(Rec.Fields["nw:js:activeqty"]);
+            IrNo = ExchangeHelper.GetStringField(Rec.Fields["nw:js:irno"]);
+            Location = ExchangeHelper.GetStringField(Rec.Fields["nw:js:location"]);
+            NeedDate = ExchangeHelper.GetDateTimeField(Rec.Fields["nw:js:needdate"]);
+            NeedQty = ExchangeHelper.GetDoubleField(Rec.Fields["nw:js:needqty"]);
+            OrderNo = ExchangeHelper.GetStringField(Rec.Fields["nw:js:no"]);
+            OrderStatus = ExchangeHelper.GetStringField(Rec.Fields["nw:js:status"]);
+            Material = ExchangeHelper.GetStringField(Rec.Fields["nw:material"]);
+            ItemName = ExchangeHelper.GetStringField(Rec.Fields["nw:partname"]);
+            ItemNo = ExchangeHelper.GetStringField(Rec.Fields["nw:partno"]);
+            ItemType = ExchangeHelper.GetStringField(Rec.Fields["nw:parttype"]);
+            ActiveLocation = ExchangeHelper.GetStringField(Rec.Fields["nw:js:activelocation"]);
             Item = Item.Load(ItemNo);
         }
 
         public bool UpdateFQC()
         {
-            if (Func.Glob.IsDebugMode)
+            if (Glob.IsDebugMode)
                 return true;
 
             Logger.Info(string.Format("Order No : {0}. Start.", OrderNo));
@@ -71,7 +68,7 @@ namespace OldNamwahSystem.BO
             ADODB.Connection Cnn = new ADODB.Connection();
             ADODB.Record Rec = new ADODB.Record();
 
-            Cnn = Func.ServerHelper.ConnectExchange(JSPATH);
+            Cnn = ServerHelper.ConnectExchange(JSPATH);
 
             try
             {
@@ -80,15 +77,17 @@ namespace OldNamwahSystem.BO
             catch (Exception ex)
             {
                 Logger.Error(string.Format("Order No : {0}. Error : {1}.", OrderNo, ex.Message));
-
                 return false;
             }
 
             Rec.Fields["nw:fqc:inspector"].Value = FQCInspector;
-            Rec.Fields["nw:fqc:inspectiondate"].Value = FQCInspectionDate;
-            Rec.Fields["nw:fqc:sample:inspectqty"].Value = ActiveQty;
+            
+            if (FQCInspectionDate != DateTime.MinValue)
+                Rec.Fields["nw:fqc:inspectiondate"].Value = FQCInspectionDate;
+
+            Rec.Fields["nw:fqc:sample:inspectqty"].Value = int.Parse(ActiveQty.ToString());
             Rec.Fields["nw:js:irno"].Value = IrNo;
-            Rec.Fields["nw:js:activeqty"].Value = ActiveQty;
+            Rec.Fields["nw:js:activeqty"].Value = int.Parse(ActiveQty.ToString());
             Rec.Fields["nw:js:status"].Value = "Complete";
             Rec.Fields["nw:js:activelocation"].Value = "Q";
             Rec.Fields.Update();

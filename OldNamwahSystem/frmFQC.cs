@@ -354,7 +354,7 @@ namespace OldNamwahSystem
             WHHistory.IO = "Input";
             WHHistory.Supplier = "FQC";
             WHHistory.Remark = txtRevision.Text;
-            WHHistory.CreatedBy = ServerHelper.UserName;
+            WHHistory.CreatedBy = Glob.UserName;
             WHHistory.InsertToExchange();
 
             SoCompress SoComp = new SoCompress();

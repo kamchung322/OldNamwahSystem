@@ -57,6 +57,16 @@ namespace OldNamwahSystem.Label
             ClosePrinter();
         }
 
+        public static void PrintCartonLabel(int CartonNo)
+        {
+            SendCommand("~MDEL");
+            Setup(19, 6, 2, 0, 2, 0);
+            SendCommand("^P1");
+            SendCommand("^L");
+            SendCommand(string.Format("AH,80,51,1,1,0,0,  {0}", CartonNo));
+            SendCommand("E");
+        }
+
         public void PrintLabel()
         {
             if (SalesOrderNo == "存仓")
@@ -68,14 +78,13 @@ namespace OldNamwahSystem.Label
             PrintShipmentLabel();
         }
 
-        
         public void PrintLabel(SoCompress SoCompress)
         {
             Item = SoCompress.Item;
 
             if (Item != null)
             {
-                ItemNo = Item.CustomerPN;
+                ItemNo = Item.CustomerItemNo;
                 ItemName = Item.ItemName;
                 ItemType = Item.ItemType;
                 Material = Item.Material;
@@ -128,7 +137,6 @@ namespace OldNamwahSystem.Label
             PrintLabel();
 
         }
-        
 
         private void PrintShipmentLabel()
         {

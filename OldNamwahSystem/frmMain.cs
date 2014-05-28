@@ -80,21 +80,22 @@ namespace OldNamwahSystem
         {
             navBarTest.Visible = false; 
 
-            ServerHelper.UserName = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToUpper();
+            Glob.UserName = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToUpper();
+            Glob.UserName = Glob.UserName.Replace(@"NWNET\", "");
 
-            if (ServerHelper.UserName == @"NWNET\IT002" || ServerHelper.UserName == @"NWNET\KENNETH")
+            if (Glob.UserName == "IT002" || Glob.UserName == "KENNETH")
             {
                 navBarTest.Visible = true;
                 return;
             }
-            else if (ServerHelper.UserName != @"NWNET\LINDA")
+            else if (Glob.UserName != "LINDA")
             {
                 navBarFQCShipment.Visible = false;
             }
-            else if (ServerHelper.UserName != @"NWNET\XK02" && 
-                    ServerHelper.UserName != @"NWNET\K_CLERK" && 
-                    ServerHelper.UserName != @"NWNET\YHHE" && 
-                    ServerHelper.UserName != @"NWNET\FJWANG")
+            else if (Glob.UserName != "XK02" &&
+                    Glob.UserName != "K_CLERK" &&
+                    Glob.UserName != "YHHE" &&
+                    Glob.UserName != "FJWANG")
             {
                 navBarShipmentExit.Visible = false;
                 navBarDeductFromWH.Visible = false;

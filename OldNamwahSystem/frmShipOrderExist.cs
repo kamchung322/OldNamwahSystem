@@ -112,6 +112,7 @@ namespace OldNamwahSystem
 
             if (int.TryParse(TmpCartonNo, out CartonNo))
             {
+                txtCartonNo.Text = CartonNo.ToString();
                 return true;
             }
             else
@@ -238,16 +239,21 @@ namespace OldNamwahSystem
         {
             List<Shipment> Shipments = GetSelectedShipment();
 
-            foreach (Shipment Ship in Shipments)
+            using (MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL())
             {
-                if (Ship.OrderStatus == "TSI")
+                MySqlTransaction TranMySQL = CnnMySQL.BeginTransaction();
+                foreach (Shipment Ship in Shipments)
                 {
-                    Shipment ShipUpdate = Shipment.LoadMySQL(Ship.OrderNo);
-                    ShipUpdate.ChangeStatus("Ready");
-                    ShipUpdate.UpdateAllRecord();
+                    if (Ship.OrderStatus == "TSI")
+                    {
+                        Shipment ShipUpdate = Shipment.LoadMySQL(Ship.OrderNo);
+                        ShipUpdate.CnnMySQL = CnnMySQL;
+                        ShipUpdate.ChangeStatus("Ready");
+                        ShipUpdate.UpdateAllRecord();
+                    }
                 }
+                TranMySQL.Commit();
             }
-
             LoadShipment();
         }
 

@@ -1,163 +1,289 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
+using MySql.Data.MySqlClient;
 using System.Linq;
 using System.Text;
 using OldNamwahSystem.Func;
-using DevExpress.Xpo;
 using log4net;
+using Dapper;
 
 namespace OldNamwahSystem.BO
 {
     class Shipment
     {
         public const string SHIPMENTPATH = "http://nwszmail/public/namwah/Shipping/ShipmentOrders/";
+        public MySqlConnection CnnMySQL;
 
         static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static Dictionary<string, Shipment> LoadMySQL(string StrFilter, string StrOrderBy)
         {
-            Dictionary<string, Shipment> Shipments = new Dictionary<string, Shipment>();
-            Logger.Info("Start");
-            ADODB.Connection Cnn = new ADODB.Connection();
-            ADODB.Recordset Rst = new ADODB.Recordset();
-            string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
-            Shipment Shipment;
-
-            string Key = "";
-
-            Cnn = Func.ServerHelper.ConnectMySQL();
-            Rst.Open(StrSQL, Cnn, ADODB.CursorTypeEnum.adOpenForwardOnly, ADODB.LockTypeEnum.adLockBatchOptimistic, 1);
-
-            while (!Rst.EOF)
+            Logger.Info("开始");
+            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
             {
-                try
-                {
-                    Shipment = new Shipment();
-                    Shipment.InitFromMySQL(Rst);
-
-                    Key = string.Format("{0}", Shipment.OrderNo);
-
-                    Shipments.Add(Key, Shipment);
-                }
-                catch(Exception ex)
-                {
-                    Logger.Error(ex.Message);
-                }
-                Rst.MoveNext();
+                string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
+                Logger.Info("结束");
+                return cnn.Query<Shipment>(StrSQL).ToDictionary<Shipment, string>(k=>k.OrderNo);
             }
-
-            Logger.Info("End");
-            return Shipments;
         }
 
-        public static BindingList<Shipment> LoadBindingListByMySQL(string StrFilter, string StrOrderBy)
+        public static Shipment LoadMySQL(string OrderNo)
         {
-            BindingList<Shipment> Shipments = new BindingList<Shipment>();
-            Logger.Info("Start");
-            ADODB.Connection Cnn = new ADODB.Connection();
-            ADODB.Recordset Rst = new ADODB.Recordset();
-            string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
-            Shipment Shipment;
-
-            Cnn = Func.ServerHelper.ConnectMySQL();
-            Rst.Open(StrSQL, Cnn, ADODB.CursorTypeEnum.adOpenForwardOnly, ADODB.LockTypeEnum.adLockBatchOptimistic, 1);
-
-            while (!Rst.EOF)
+            Logger.Info("开始");
+            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
             {
-                try
-                {
-                    Shipment = new Shipment();
-                    Shipment.InitFromMySQL(Rst);
-                    Shipments.Add(Shipment);
-                }
-                catch(Exception ex)
-                {
-                    Logger.Error(ex.Message);
-                }
-                Rst.MoveNext();
+                string StrSQL = string.Format("SELECT * FROM Shipment WHERE OrderNo = '{0}'", OrderNo);
+                Logger.Info("结束");
+
+                return cnn.Query<Shipment>(StrSQL).SingleOrDefault();
             }
-            Logger.Info("Start");
-            return Shipments;
         }
 
         public static List<Shipment> LoadListByMySQL(string StrFilter, string StrOrderBy)
         {
-            List<Shipment> Shipments = new List<Shipment>();
-            Logger.Info("Start");
-            ADODB.Connection Cnn = new ADODB.Connection();
-            ADODB.Recordset Rst = new ADODB.Recordset();
-            string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
-            Shipment Shipment;
-
-            Cnn = Func.ServerHelper.ConnectMySQL();
-            Rst.Open(StrSQL, Cnn, ADODB.CursorTypeEnum.adOpenForwardOnly, ADODB.LockTypeEnum.adLockBatchOptimistic, 1);
-
-            while (!Rst.EOF)
+            Logger.Info("开始");
+            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
             {
-                try
-                {
-                    Shipment = new Shipment();
-                    Shipment.InitFromMySQL(Rst);
-                    Shipments.Add(Shipment);
-                }
-                catch(Exception ex)
-                {
-                    Logger.Error(ex.Message);
-                }
-                Rst.MoveNext();
+                string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
+                Logger.Info("结束");
+                return cnn.Query<Shipment>(StrSQL).ToList<Shipment>();
             }
-            Logger.Info("Start");
-            return Shipments;
         }
 
-        public void InitFromMySQL(ADODB.Recordset Rst)
+        public bool DeductWH()
         {
-            this.ArrivedQty = double.Parse(Rst.Fields["ArrivedQty"].Value.ToString());
-            this.Carton = Rst.Fields["Carton"].Value.ToString();
-            this.CompDate = DateTime.Parse(Rst.Fields["CompDate"].Value.ToString());
-            this.Customer = Rst.Fields["Customer"].Value.ToString();
-            this.CustomerItemNo = Rst.Fields["CustomerItemNo"].Value.ToString();
-            this.CustomerPrice = double.Parse(Rst.Fields["CustomerPrice"].Value.ToString());
-            this.Destination = Rst.Fields["Destination"].Value.ToString();
-            this.InvoiceNo = Rst.Fields["InvoiceNo"].Value.ToString();
-            this.ItemName = Rst.Fields["ItemName"].Value.ToString();
-            this.ItemNo = Rst.Fields["ItemNo"].Value.ToString();
-            this.Item = Item.Load(this.ItemNo);
-            this.ItemType = Rst.Fields["ItemType"].Value.ToString();
-            this.ItemRevision = Rst.Fields["ItemRevision"].Value.ToString();
-            this.LastModifiedDate = DateTime.Parse(Rst.Fields["LastModifiedDate"].Value.ToString());
-            this.Material = Rst.Fields["Material"].Value.ToString();
-            this.MoveDate = DateTime.Parse(Rst.Fields["MoveDate"].Value.ToString());
-            this.MoveQty = double.Parse(Rst.Fields["MoveQty"].Value.ToString());
-            this.OrderDate = DateTime.Parse(Rst.Fields["OrderDate"].Value.ToString());
-            this.OrderNo = Rst.Fields["OrderNo"].Value.ToString();
-            this.Origin = Rst.Fields["Origin"].Value.ToString();
-            this.OurPrice = double.Parse(Rst.Fields["OurPrice"].Value.ToString());
-            this.PlatingInvoiceDate = DateTime.Parse(Rst.Fields["PlatingInvoiceDate"].Value.ToString());
-            this.PlatingInvoiceNo = Rst.Fields["PlatingInvoiceNo"].Value.ToString();
-            this.RefNo = Rst.Fields["RefNo"].Value.ToString();
-            this.RefType = Rst.Fields["RefType"].Value.ToString();
-            this.SalesOrderNo = Rst.Fields["SalesOrderNo"].Value.ToString();
-            this.SalesOrderIndex = int.Parse(Rst.Fields["SalesOrderIndex"].Value.ToString());
-            this.ShipMethod = Rst.Fields["ShipMethod"].Value.ToString();
-            this.SoType = Rst.Fields["SoType"].Value.ToString();
-            this.OrderStatus = Rst.Fields["OrderStatus"].Value.ToString();
-            this.SOLine = SalesOrderLine.LoadMySQL(this.SalesOrderNo, this.SalesOrderIndex);
+            if (OrderStatus != "Waiting")
+                return false;
+
+            WHHistory WHHistory = new WHHistory();
+
+            WHHistory.ItemNo = ItemNo;
+            WHHistory.ItemName = ItemName;
+            WHHistory.ItemType = ItemType;
+            WHHistory.RefNo = OrderNo;
+            WHHistory.RefType = "SO";
+            WHHistory.Qty = MoveQty;
+            WHHistory.VendDefectQty = 0;
+            WHHistory.DefectQty = 0;
+            WHHistory.OK = "ok";
+            WHHistory.Supplier = Destination;
+            WHHistory.Status = "Complete";
+            WHHistory.IO = "Output";
+
+            if (WHHistory.PostFromShipment() == false)
+                return false;
+
+            ChangeStatus("TSI");
+            UpdateAllRecord();
+
+            return true;
+        }
+        
+        private void RecToExchange(ADODB.Record Rec)
+        {
+            Rec.Fields["nw:mo:no"].Value = OrderNo;
+            Rec.Fields["nw:partno"].Value = ItemNo;
+
+            if (Item != null)
+                Rec.Fields["nw:part:revision"].Value = Item.CustomerRevision;
+            
+            Rec.Fields["nw:part:tmxrefno"].Value = CustomerItemNo;
+            Rec.Fields["nw:material"].Value = Material;
+            Rec.Fields["nw:parttype"].Value = ItemType;
+            Rec.Fields["nw:partname"].Value = ItemName;
+            Rec.Fields["nw:strprice"].Value = OurPrice.ToString(); 
+            Rec.Fields["nw:cpo:item:strprice"].Value = CustomerPrice.ToString();
+            Rec.Fields["nw:mo:origin"].Value = Origin;
+            Rec.Fields["nw:customer"].Value = Customer;
+            Rec.Fields["nw:mo:destination"].Value = Destination; 
+            Rec.Fields["nw:mo:moveqty"].Value = int.Parse(MoveQty.ToString());
+            Rec.Fields["nw:mo:arrivedqty"].Value = int.Parse(ArrivedQty.ToString()); 
+            Rec.Fields["nw:cpo:item:shipmethod"].Value = ShipMethod;
+            //Rec.Fields.Append("nw:mo:movedate", ADODB.DataTypeEnum.adFileTime);
+            
+            if (CompDate.Year > 2000)
+                Rec.Fields["nw:mo:compdate"].Value = CompDate;
+
+            if (MoveDate.Year > 2000)
+                Rec.Fields["nw:mo:movedate"].Value = MoveDate; // DateTime.Today;
+
+            Rec.Fields["nw:cpo:no"].Value = SalesOrderNo; //  SOLine.OrderNo;
+            Rec.Fields["nw:cpo:item:index"].Value = SalesOrderIndex; //  SOLine.OrderIndex;
+            Rec.Fields["nw:mo:refno"].Value = RefNo;
+            Rec.Fields["nw:mo:reftype"].Value = RefType;//  "CPO";
+            Rec.Fields["nw:mo:sotype"].Value = SoType; //  "FQC";
+            Rec.Fields["nw:mo:status"].Value = OrderStatus; 
+            Rec.Fields["nw:history"].Value = History;
         }
 
-        public bool SaveNewRecord()
+        public void AddHistory(string Message)
+        {
+            History = Glob.AddHistory(History, Message);
+        }
+
+        public void AddCartonNo(int NewCartonNo)
+        {
+            string[] CartonNos = Carton.Split(',');
+            string CartonNo = NewCartonNo.ToString();
+
+            List<int> ListCarton = new List<int>();
+
+            ListCarton.Add(NewCartonNo);
+
+            foreach (string C in CartonNos)
+            {
+                if (C != CartonNo && C != "")
+                    ListCarton.Add(int.Parse(C));
+            }
+
+            ListCarton.Sort();
+            Carton = "";
+
+            foreach (int C in ListCarton)
+            {
+                Carton = string.Format("{0},{1}", Carton, C);
+            }
+
+            Carton = Carton.Substring(1, Carton.Length - 1);
+        }
+
+        public void AddShippedQty(double SQty)
+        {
+            if (SQty == 0)
+                return;
+
+            if (SQty + ArrivedQty > MoveQty)
+            {
+                Logger.Error(string.Format("寄货单号{0}. 已装箱数{1}({2}+{3})不能大于寄货数量{4}",
+                    OrderNo, SQty + ArrivedQty, ArrivedQty, SQty, MoveQty));
+
+                throw new Exception(string.Format("已装箱数{0}({1}+{2})不能大于寄货数量{3}", 
+                    SQty + ArrivedQty, ArrivedQty, SQty, MoveQty));
+            }
+
+            if (SQty + ArrivedQty == MoveQty)
+            {
+                AddHistory(string.Format("Arrived Qty change from {0} to {1}.", ArrivedQty, ArrivedQty + SQty));
+                ChangeStatus("Active");
+            }
+
+            ArrivedQty = ArrivedQty + SQty;
+
+            AddSOLineArrivedQty(SQty);
+        }
+
+        public void ChangeMoveQty(double NewMoveQty)
+        {
+            if (NewMoveQty > MoveQty)
+                throw new Exception(string.Format("更改数量{0}不能大于原数量{1}", NewMoveQty, MoveQty));
+
+            if (NewMoveQty < ArrivedQty)
+                throw new Exception(string.Format("更改数量{0}不能少于已装箱数{1}.", NewMoveQty, ArrivedQty));
+    
+            AddHistory(string.Format("寄货数量由{0}改为{1}.", MoveQty, NewMoveQty));
+            MoveQty = NewMoveQty;
+
+            if (MoveQty == 0)
+            {
+                ChangeStatus("Complete");
+            }
+            else if (MoveQty == ArrivedQty)
+            {
+                ChangeStatus("Active");
+            }
+        }
+
+        private void AddSOLineArrivedQty(double SQty)
+        {
+            SalesOrderLine SOLine = SalesOrderLine.LoadMySQL(SalesOrderNo, SalesOrderIndex);
+
+            if (SOLine == null)
+            {
+                Logger.Error(string.Format("寄货单号{0}, 产品编码{1}, 找不到销售单号{2}-{3}.", 
+                    OrderNo, ItemNo, SalesOrderNo, SalesOrderIndex));
+                throw new Exception(string.Format("找不到此销售单号{0}-{1}"
+                    , SalesOrderNo, SalesOrderIndex));
+            }
+
+            SOLine.CnnMySQL = CnnMySQL;
+            SOLine.AddShippedQty(SQty);
+            SOLine.UpdateAllRecord();
+        }
+
+        public void ChangeStatus(string NewStatus)
+        {
+            if (OrderStatus == NewStatus)
+                return;
+
+            AddHistory(string.Format("Status change from {0} to {1}.", OrderStatus, NewStatus));
+            OrderStatus = NewStatus;
+        }
+
+        public bool UpdateAllRecord()
         {
             if (Glob.IsDebugMode)
                 return true;
 
-            Logger.Info("Start");
-            ADODB.Record Rec;
-            ADODB.Connection Cnn = new ADODB.Connection();
-            Cnn = ServerHelper.ConnectExchange(SHIPMENTPATH);
+            bool IsOK = UpdateToExchange();
 
-            Rec = new ADODB.Record();
+            if (IsOK)
+                IsOK = SaveToMySQL();
+
+            return IsOK;
+        }
+
+        public bool InsertAllRecord()
+        {
+            if (Glob.IsDebugMode)
+                return true;
+
+            bool IsOK = InsertToExchange();
+
+            if (IsOK)
+                IsOK = SaveToMySQL();
+
+            return IsOK;
+        }
+
+        private bool UpdateToExchange()
+        {
+            Logger.Info(string.Format("寄货单号 {0}.  开始", OrderNo));
+
+            ADODB.Connection Cnn = new ADODB.Connection();
+            ADODB.Record Rec = new ADODB.Record();
+            Cnn = ServerHelper.ConnectExchange(SHIPMENTPATH);
+            string StrSQL = "";
+
+            StrSQL = string.Format("{0}{1}.eml", SHIPMENTPATH, OrderNo);
+
+            try
+            {
+                Rec.Open(StrSQL, Cnn, ADODB.ConnectModeEnum.adModeReadWrite, 
+                    ADODB.RecordCreateOptionsEnum.adFailIfNotExists,
+                    ADODB.RecordOpenOptionsEnum.adOpenRecordUnspecified,
+                        "Namwah", "ParaW0rld");
+                RecToExchange(Rec);
+                Rec.Fields.Update();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(string.Format("寄货单号 {0}不能储存.  原因 : {1}.", OrderNo, ex.Message));
+                return false;
+            }
+
+            Logger.Info(string.Format("寄货单号 {0}.  结束", OrderNo));
+            return true;
+        }
+
+        private bool InsertToExchange()
+        {
+            Logger.Info(string.Format("开始.  寄货单号 {0}.", OrderNo));
+
+            ADODB.Connection Cnn = new ADODB.Connection();
+            ADODB.Record Rec = new ADODB.Record();
+            Cnn = ServerHelper.ConnectExchange(SHIPMENTPATH);
             string StrSQL = "";
 
             for (int Attempt = 0; Attempt < 2; Attempt++)
@@ -169,7 +295,7 @@ namespace OldNamwahSystem.BO
 
                     if (OrderNo == "")
                     {
-                        Logger.Error("Cannot get the shipment barcorde");
+                        Logger.Error("原因 : 不能取得寄货单号.");
                         return false;
                     }
 
@@ -185,7 +311,7 @@ namespace OldNamwahSystem.BO
                 {
                     if (Attempt == 2)
                     {
-                        Logger.Error(string.Format("Cannot create shipment order.  Error : {0}.", ex.Message));
+                        Logger.Error(string.Format("不能建立寄货单.  原因 : {0}.", ex.Message));
                         return false;
                     }
                     else
@@ -200,39 +326,100 @@ namespace OldNamwahSystem.BO
             Rec.Fields["http://schemas.microsoft.com/exchange/outlookmessageclass"].Value = "IPM.Post.ship_order";
             Rec.Fields["DAV:contentclass"].Value = "nw:content-classes:mo";
             Rec.Fields["urn:schemas:httpmail:subject"].Value = OrderNo;
-            Rec.Fields["nw:mo:no"].Value = OrderNo;
-            Rec.Fields["nw:partno"].Value = Item.ItemNo;
-            Rec.Fields["nw:part:revision"].Value = Item.CustomerRevision;
-            Rec.Fields["nw:part:tmxrefno"].Value = CustomerItemNo;
-            Rec.Fields["nw:parttype"].Value = Item.ItemType;
-            Rec.Fields["nw:partname"].Value = Item.ItemName;
-            Rec.Fields["nw:strprice"].Value = SOLine.OurPrice.ToString();
-            Rec.Fields["nw:cpo:item:strprice"].Value = SOLine.OurPrice.ToString();
-            Rec.Fields["nw:mo:origin"].Value = "FQC";
-            Rec.Fields["nw:customer"].Value = SOLine.Customer;
-            Rec.Fields["nw:mo:destination"].Value = SOLine.Customer;
-            Rec.Fields["nw:mo:moveqty"].Value = MoveQty;
-            Rec.Fields["nw:mo:arrivedqty"].Value = 0;
-            Rec.Fields["nw:cpo:item:shipmethod"].Value = SOLine.ShipMethod;
 
-            //Rec.Fields.Append("nw:mo:movedate", ADODB.DataTypeEnum.adFileTime);
-            Rec.Fields["nw:mo:movedate"].Value = DateTime.Today;
-            Rec.Fields["nw:cpo:no"].Value = SOLine.OrderNo;
-            Rec.Fields["nw:cpo:item:index"].Value = SOLine.OrderIndex;
-            Rec.Fields["nw:material"].Value = Item.Material;
-            Rec.Fields["nw:mo:refno"].Value = RefNo;
-            Rec.Fields["nw:mo:reftype"].Value = "CPO";
-            Rec.Fields["nw:mo:sotype"].Value = "FQC";
-            Rec.Fields["nw:mo:status"].Value = "TSI"; //  ' Change from Ready to TSI
-            Rec.Fields["nw:history"].Value = "";
+            AddHistory("Created");
+            AddHistory(string.Format("Original Ship Qty is {0}", MoveQty));
 
-            Glob.AddADOHistory(Rec, "Created");
-            Glob.AddADOHistory(Rec, string.Format("Original Ship Qty is {0}", MoveQty));
+            RecToExchange(Rec);
 
             Rec.Fields.Update();
-
-            Logger.Info("End");
+            Logger.Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
             return true;
+        }
+
+        public  bool SaveToMySQL()
+        {
+            Logger.Info(string.Format("开始.  寄货单号 {0}.", OrderNo));
+
+            StringBuilder SBSql = new StringBuilder();
+            String StrSQL = "";
+            int AffectRecord = 0;
+
+            SBSql.Append("UPDATE Shipment SET");
+            SBSql.Append(" ArrivedQty = '{0}', Carton = '{1}', CompDate = '{2}'");
+            SBSql.Append(", Customer = '{3}', CustomerItemNo = '{4}', CustomerPrice = '{5}'");
+            SBSql.Append(", MoveDate = '{6}', MoveQty = '{7}'");
+            SBSql.Append(", OrderDate = '{8}', Origin = '{9}'");
+            SBSql.Append(", OurPrice = '{10}', PlatingInvoiceDate = '{11}'");
+            SBSql.Append(", Destination = '{12}', InvoiceNo = '{13}'");
+            SBSql.Append(", ItemName = '{14}', ItemNo = '{15}', ItemType = '{16}'");
+            SBSql.Append(", ItemRevision = '{17}', Material = '{18}'");
+            SBSql.Append(", PlatingInvoiceNo = '{19}', RefNo = '{20}', RefType = '{21}'");
+            SBSql.Append(", SalesOrderNo = '{22}', SalesOrderIndex = '{23}'");
+            SBSql.Append(", ShipMethod = '{24}', SoType = '{25}'");
+            SBSql.Append(", OrderStatus = '{26}', LastModifiedDate = '{27}', History = '{28}' ");
+            SBSql.Append(" WHERE OrderNo = '{29}'");
+
+            StrSQL = string.Format(SBSql.ToString(), ArrivedQty, Carton, CompDate.ToString("yyyy-MM-dd"),
+                        Customer, CustomerItemNo, CustomerPrice,
+                        MoveDate.ToString("yyyy-MM-dd"), MoveQty,
+                        OrderDate.ToString("yyyy-MM-dd hh:mm:ss"), Origin,
+                        OurPrice, PlatingInvoiceDate.ToString("yyyy-MM-dd"),
+                        Destination, InvoiceNo,
+                        ItemName, ItemNo, ItemType,
+                        ItemRevision, Material,
+                        PlatingInvoiceNo, RefNo, RefType,
+                        SalesOrderNo, SalesOrderIndex,
+                        ShipMethod, SoType,
+                        OrderStatus, LastModifiedDate.ToString("yyyy-MM-dd hh:mm:ss"),
+                        History.Replace("'", "\'") , OrderNo);
+
+            AffectRecord = CnnMySQL.Execute(StrSQL);
+
+            if (AffectRecord > 0)
+            {
+                Logger.Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
+                return true;
+            }
+
+            SBSql.Clear();
+            SBSql.Append("INSERT INTO Shipment (");
+            SBSql.Append("ArrivedQty, Carton, CompDate, Customer, CustomerItemNo, CustomerPrice");
+            SBSql.Append(", MoveDate, MoveQty, OrderDate, Origin, OurPrice, PlatingInvoiceDate");
+            SBSql.Append(", Destination, InvoiceNo, ItemName, ItemNo, ItemType, ItemRevision, Material");
+            SBSql.Append(", PlatingInvoiceNo, RefNo, RefType, SalesOrderNo, SalesOrderIndex");
+            SBSql.Append(", ShipMethod, SoType, OrderStatus, LastModifiedDate, History, OrderNo )");
+            SBSql.Append(" VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}'");
+            SBSql.Append(", '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}'");
+            SBSql.Append(", '{17}', '{18}', '{19}', '{20}', '{21}', '{22}', '{23}', '{24}', '{25}'");
+            SBSql.Append(", '{26}', '{27}', '{28}', '{29}' )");
+
+            StrSQL = string.Format(SBSql.ToString(), ArrivedQty, Carton, CompDate.ToString("yyyy-MM-dd"),
+                        Customer, CustomerItemNo, CustomerPrice,
+                        MoveDate.ToString("yyyy-MM-dd"), MoveQty,
+                        OrderDate.ToString("yyyy-MM-dd hh:mm:ss"), Origin,
+                        OurPrice, PlatingInvoiceDate.ToString("yyyy-MM-dd"),
+                        Destination, InvoiceNo,
+                        ItemName, ItemNo, ItemType,
+                        ItemRevision, Material,
+                        PlatingInvoiceNo, RefNo, RefType,
+                        SalesOrderNo, SalesOrderIndex,
+                        ShipMethod, SoType,
+                        OrderStatus, LastModifiedDate.ToString("yyyy-MM-dd hh:mm:ss"),
+                        History.Replace("'", "\'"), OrderNo);
+
+            AffectRecord = CnnMySQL.Execute(StrSQL);
+
+            if (AffectRecord > 0)
+            {
+                Logger.Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
+                return true;
+            }
+            else
+            {
+                Logger.Error(string.Format("寄货单号 {0}.  原因 : 没有储存到数据库", OrderNo));
+                return false;
+            }
         }
 
         #region Fields
@@ -268,19 +455,13 @@ namespace OldNamwahSystem.BO
         private DateTime _CompDate = DateTime.MinValue;
         private string _Carton = "";
         private double _ArrivedQty = 0;
-        private SalesOrderLine _SOLine;
 
-        public SalesOrderLine SOLine
-        {
-            get
-            {
-                return _SOLine;
-            }
-            set
-            {
-                _SOLine = value;
-            }
-        }
+        //private SalesOrderLine _SOLine;
+        //public SalesOrderLine SOLine
+        //{
+        //       get { return _SOLine; }
+        //       set { _SOLine = value; }
+        //}
 
         public Item Item
         {
@@ -291,6 +472,10 @@ namespace OldNamwahSystem.BO
             set
             {
                 _Item = value;
+
+                if (_Item != null && Material != "")
+                    Material = _Item.Material;
+
             }
         }
 
@@ -316,6 +501,13 @@ namespace OldNamwahSystem.BO
             {
                 _Carton = value;
             }
+        }
+
+        private string _History = "";
+        public string History
+        {
+            get { return _History; }
+            set { _History = value; }
         }
 
         public DateTime CompDate

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using OldNamwahSystem.Func;
 using log4net;
 
 namespace OldNamwahSystem.BO
@@ -13,19 +13,44 @@ namespace OldNamwahSystem.BO
 
         static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public bool SaveNewRecord()
+        public bool PostFromShipment()
         {
-            if (Func.Glob.IsDebugMode)
+            if (Glob.IsDebugMode)
                 return true;
 
-            Logger.Info("Start");
+            Logger.Info(string.Format("开始.  编码 : {0}", ItemNo));
+            WHTotal WHTotal = WHTotal.LoadByExchange(ItemNo);
 
-            ADODB.Record Rec;
-            Rec = new ADODB.Record();
-            string StrSQL = "";
+            if (WHTotal == null)
+            {
+                Logger.Error(string.Format("找不到此编码 {0}的仓存总数.", ItemNo));
+                return false;
+            }
+
+            if (WHTotal.AvailQty < Qty)
+            {
+                Logger.Error(string.Format("编码 : {0}, 可用数量 {1} 少於寄货数 {2}.", ItemNo, WHTotal.AvailQty, Qty));
+                return false;
+            }
+
+            WHTotal.Qty = WHTotal.Qty - Qty;
+
+            if (WHTotal.UpdateToExchange() == false)
+                return false;
+
+            return InsertToExchange();
+        }
+
+        public bool InsertToExchange()
+        {
+            if (Glob.IsDebugMode)
+                return true;
+
+            Logger.Info(string.Format("开始.  编码 : {0}", ItemNo));
+
+            ADODB.Record Rec = new ADODB.Record();
             string Subject = string.Format("{0}_{1}", DateTime.Now.ToString("yyMMddhhmmss"), ItemNo ) ;
-
-            StrSQL = string.Format("{0}{1}.eml", SZInvHisPath, Subject);
+            string StrSQL = string.Format("{0}{1}.eml", SZInvHisPath, Subject);
 
             Rec.Open(StrSQL, Type.Missing, ADODB.ConnectModeEnum.adModeReadWrite,
                  ADODB.RecordCreateOptionsEnum.adCreateNonCollection,
@@ -38,19 +63,20 @@ namespace OldNamwahSystem.BO
             Rec.Fields["nw:partname"].Value = ItemName;
             Rec.Fields["nw:parttype"].Value = ItemType;
             Rec.Fields["nw:inv:refno"].Value = RefNo;
-            Rec.Fields["nw:inv:reftype"].Value = "SS";
-            Rec.Fields["nw:inv:totalqty"].Value = Qty;
+            Rec.Fields["nw:inv:reftype"].Value = RefType; // "SS"
+            Rec.Fields["nw:inv:totalqty"].Value = int.Parse(Qty.ToString());
             Rec.Fields["nw:inv:sectionqty"].Value = Qty.ToString();
-            Rec.Fields["nw:inv:vendefectqty"].Value = VendDefectQty;
-            Rec.Fields["nw:inv:defectqty"].Value = DefectQty;
+            Rec.Fields["nw:inv:vendefectqty"].Value = int.Parse(VendDefectQty.ToString());
+            Rec.Fields["nw:inv:defectqty"].Value = int.Parse(DefectQty.ToString());
             Rec.Fields["nw:inv:section"].Value = "";
+            Rec.Fields["nw:inv:ok"].Value = OK;
             Rec.Fields["nw:supplier"].Value = Supplier;
             Rec.Fields["nw:inv:remark"].Value = Remark;
             Rec.Fields["nw:inv:supplierdn"].Value = DN;
             Rec.Fields["nw:inv:status"].Value = Status;
             //Rec.Fields["urn:schemas:httpmail:fromname"].Value = CreatedBy;
             Rec.Fields["nw:inv:io"].Value = IO;
-
+            　
             if (IO == "Input")
                 Rec.Fields["http://schemas.microsoft.com/exchange/outlookmessageclass"].Value = "IPM.Post.invparts_szinput";
             else
@@ -58,7 +84,7 @@ namespace OldNamwahSystem.BO
 
             Rec.Fields.Update();
 
-            Logger.Info("End");
+            Logger.Info(string.Format("结束.  编码 : {0}", ItemNo));
 
             return true;
         }
@@ -82,8 +108,8 @@ namespace OldNamwahSystem.BO
         private string _Status = "";
         private string _RefType = "";
         private string _RefNo = "";
-        private Item _Item;
 
+        private Item _Item;
         public Item Item
         {
             get
@@ -94,6 +120,13 @@ namespace OldNamwahSystem.BO
             {
                 _Item = value;
             }
+        }
+
+        private string _OK = "";
+        public string OK
+        {
+            get { return _OK; }
+            set { _OK = value; }
         }
 
         public string RefNo

@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using OldNamwahSystem.Func;
+using MySql.Data.MySqlClient;
+using Dapper;
+using log4net;
 
 namespace OldNamwahSystem.BO
 {
     class Item
     {
+        readonly static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private float _SalesPrice = 0;
         private int _BoxQty = 0;
         private string _QCStatus = "";
         private string _Material = "";
         private string _CustomerRevision = "01";
-        private string _CustomerPN = "";
+        private string _CustomerItemNo = "";
         private string _ItemType = "";
         private string _ItemName = "";
         private string _ItemNo = "";
@@ -25,7 +29,7 @@ namespace OldNamwahSystem.BO
             ItemNo = Rsts.Fields["ItemNo"].Value.ToString();
             ItemName = Rsts.Fields["ItemName"].Value.ToString();
             ItemType = Rsts.Fields["ItemTypeName"].Value.ToString();
-            CustomerPN = Rsts.Fields["CustomerItemNo"].Value.ToString();
+            CustomerItemNo = Rsts.Fields["CustomerItemNo"].Value.ToString();
 
             if (Rsts.Fields["CustomerItemRevision"].Value != null)
             {
@@ -35,57 +39,33 @@ namespace OldNamwahSystem.BO
 
             SalesPrice = float.Parse(Rsts.Fields["SalesPrice"].Value.ToString());
 
-            Material = Rsts.Fields["Name"].Value.ToString();
+            Material = Rsts.Fields["Material"].Value.ToString();
             BoxQty = int.Parse(Rsts.Fields["BoxQty"].Value.ToString());
             QCStatus = "";
 
-            /*
-                If InStr(1, ItemType, "Bezel") > 0 Or InStr(1, ItemType, "Assembly") > 0 Then
-                    LotNo = Left(ItemName, 4)
-                End If
-            */
         }
 
         public static Item Load(string INo)
         {
-            Item TmpItem = new Item();
-            ADODB.Connection Cnn;
-            ADODB.Recordset Rst;
-            string StrSQL;
-            bool IsFound = false;
-
-            StrSQL = "SELECT Item.*, ItemType.ItemTypeName, Material.Name FROM Item " +
-                " LEFT Join ItemType on Item.ItemType = ItemType.Oid " +
-                " LEFT Join Material on Item.Material = Material.Oid" +
-                " WHERE Item.ItemNo = '" + INo + "'";
-
-            Cnn = ServerHelper.ConnectMySQL("namwah");
-            Rst = new ADODB.Recordset();
-            Rst.Open(StrSQL, Cnn, ADODB.CursorTypeEnum.adOpenForwardOnly, ADODB.LockTypeEnum.adLockBatchOptimistic, 1);
-
-            while (!Rst.EOF)
+            Logger.Info("开始");
+            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL("namwah"))
             {
-                TmpItem = new Item(Rst);
-                IsFound = true;
-                break;
+                string StrSQL = String.Format("SELECT Item.*, ItemType.ItemTypeName as ItemType, Material.Name as Material FROM Item  LEFT Join ItemType on Item.ItemType = ItemType.Oid  LEFT Join Material on Item.Material = Material.Oid WHERE Item.ItemNo = '{0}'", INo);
+                Logger.Info("结束");
+                return cnn.Query<Item>(StrSQL).SingleOrDefault();
             }
-
-            if (IsFound)
-                return TmpItem;
-            else
-                return null;
-
         }
 
         public void SaveBoxQty()
         {
-            if (Func.Glob.IsDebugMode == true)
+            if (Glob.IsDebugMode == true)
                 return;
 
-            ADODB.Connection Cnn = ServerHelper.ConnectMySQL("namwah");
-            Object RecordAffect;
-            string StrSQL = string.Format("UPDATE Item SET BoxQty = {0} WHERE ItemNo = '{1}'", BoxQty, ItemNo);
-            Cnn.Execute(StrSQL, out RecordAffect);
+            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL("namwah"))
+            {
+                string StrSQL = string.Format("UPDATE Item SET BoxQty = {0} WHERE ItemNo = '{1}'", BoxQty, ItemNo);
+                int RecordAffect = Cnn.Execute(StrSQL);
+            }
         }
 
         public string ItemNo
@@ -124,15 +104,15 @@ namespace OldNamwahSystem.BO
             }
         }
 
-        public string CustomerPN
+        public string CustomerItemNo
         {
             get
             {
-                return _CustomerPN;
+                return _CustomerItemNo;
             }
             set
             {
-                _CustomerPN = value;
+                _CustomerItemNo = value;
             }
         }
 
