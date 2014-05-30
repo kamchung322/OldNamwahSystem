@@ -22,7 +22,7 @@ namespace OldNamwahSystem
 
         private void btnLoadWH_Click(object sender, EventArgs e)
         {
-            List<Shipment> Shipments = Shipment.LoadListByMySQL("WHERE (OrderStatus = 'Ready' OR OrderStatus = 'TSI') AND SOType = 'SZINV'" , "");
+            List<Shipment> Shipments = Shipment.LoadListByMySQL("WHERE (OrderStatus = 'Waiting' OR OrderStatus = 'Ready' OR OrderStatus = 'TSI') AND SOType = 'SZINV'" , "");
 
             BindingList<SoCompress> WHSoCompressList = SoCompress.CompressSO(Shipments);
 

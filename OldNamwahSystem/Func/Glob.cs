@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using log4net;
+
 
 namespace OldNamwahSystem.Func
 {
@@ -9,6 +11,7 @@ namespace OldNamwahSystem.Func
         public static bool IsDebugMode = false;
         public static string UserName = "Nam Wah System";
         public static string DefaultDatabase = "oldnamwahsystem"; // "test_nws"; //"oldnamwahsystem";
+        readonly static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public static string AddHistory(string OriginalHistory, string Message)
         {
@@ -22,6 +25,7 @@ namespace OldNamwahSystem.Func
             string Prefix = "";
             int NextSONo = 0;
             const string BarcodePath = "http://nwszmail/public/namwah/system/barcodes/SZ_ShipOrderCode.EML";
+            Logger.Info("开始");
 
             try
             {
@@ -41,9 +45,10 @@ namespace OldNamwahSystem.Func
             }
             catch (Exception ex)
             {
+                Logger.Error(ex.Message);
                 DevExpress.XtraEditors.XtraMessageBox.Show(ex.Message);
             }
-
+            Logger.Info("結束");
         }
 
         public static string GetShipmentBarcode()
@@ -51,7 +56,7 @@ namespace OldNamwahSystem.Func
             string Prefix = "", Barcode = "";
             int NextSONo = 0;
             string BarcodePath = "http://nwszmail/public/namwah/system/barcodes/SZ_ShipOrderCode.EML";
-
+            Logger.Info("开始");
             try
             {
                 ADODB.Connection Cnn = new ADODB.Connection();
@@ -79,9 +84,11 @@ namespace OldNamwahSystem.Func
             }
             catch (Exception ex)
             {
+                Logger.Error(ex.Message);
                 DevExpress.XtraEditors.XtraMessageBox.Show(ex.Message);
             }
 
+            Logger.Info("結束");
             return Barcode;
         }
 

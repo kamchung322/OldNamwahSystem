@@ -28,8 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DevExpress.XtraGrid.StyleFormatCondition styleFormatCondition1 = new DevExpress.XtraGrid.StyleFormatCondition();
+            DevExpress.XtraGrid.StyleFormatCondition styleFormatCondition2 = new DevExpress.XtraGrid.StyleFormatCondition();
+            this.ColShipMethod = new DevExpress.XtraGrid.Columns.GridColumn();
             this.splitContainerControl1 = new DevExpress.XtraEditors.SplitContainerControl();
+            this.cboStatus = new DevExpress.XtraEditors.ComboBoxEdit();
+            this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
+            this.txtTime = new DevExpress.XtraEditors.TextEdit();
+            this.btnLoadWH = new DevExpress.XtraEditors.SimpleButton();
             this.gridShipment = new DevExpress.XtraGrid.GridControl();
             this.gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.ColShipOrderNo = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -41,7 +46,6 @@
             this.ColMoveQty = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColArrivedQty = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColMoveDate = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.ColShipMethod = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColSalesOrderNo = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColSalesOrderIndex = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColPrice = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -49,17 +53,23 @@
             this.ColCarton = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColOrderDate = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColOrderStatus = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.txtTime = new DevExpress.XtraEditors.TextEdit();
-            this.btnLoadWH = new DevExpress.XtraEditors.SimpleButton();
-            this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
-            this.cboStatus = new DevExpress.XtraEditors.ComboBoxEdit();
+            this.ColInvoiceNo = new DevExpress.XtraGrid.Columns.GridColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             this.splitContainerControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboStatus.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtTime.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridShipment)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtTime.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cboStatus.Properties)).BeginInit();
             this.SuspendLayout();
+            // 
+            // ColShipMethod
+            // 
+            this.ColShipMethod.Caption = "寄货方式";
+            this.ColShipMethod.FieldName = "ShipMethod";
+            this.ColShipMethod.Name = "ColShipMethod";
+            this.ColShipMethod.Visible = true;
+            this.ColShipMethod.VisibleIndex = 9;
+            this.ColShipMethod.Width = 36;
             // 
             // splitContainerControl1
             // 
@@ -78,6 +88,48 @@
             this.splitContainerControl1.SplitterPosition = 67;
             this.splitContainerControl1.TabIndex = 0;
             this.splitContainerControl1.Text = "splitContainerControl1";
+            // 
+            // cboStatus
+            // 
+            this.cboStatus.EditValue = "未寄货";
+            this.cboStatus.Location = new System.Drawing.Point(227, 37);
+            this.cboStatus.Name = "cboStatus";
+            this.cboStatus.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboStatus.Properties.Items.AddRange(new object[] {
+            "所有",
+            "未寄货"});
+            this.cboStatus.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            this.cboStatus.Size = new System.Drawing.Size(100, 20);
+            this.cboStatus.TabIndex = 22;
+            // 
+            // labelControl1
+            // 
+            this.labelControl1.Location = new System.Drawing.Point(181, 40);
+            this.labelControl1.Name = "labelControl1";
+            this.labelControl1.Size = new System.Drawing.Size(24, 14);
+            this.labelControl1.TabIndex = 21;
+            this.labelControl1.Text = "狀态";
+            // 
+            // txtTime
+            // 
+            this.txtTime.Location = new System.Drawing.Point(333, 37);
+            this.txtTime.Name = "txtTime";
+            this.txtTime.Properties.ReadOnly = true;
+            this.txtTime.Size = new System.Drawing.Size(237, 20);
+            this.txtTime.TabIndex = 20;
+            this.txtTime.TabStop = false;
+            // 
+            // btnLoadWH
+            // 
+            this.btnLoadWH.Appearance.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLoadWH.Appearance.Options.UseFont = true;
+            this.btnLoadWH.Location = new System.Drawing.Point(22, 17);
+            this.btnLoadWH.Name = "btnLoadWH";
+            this.btnLoadWH.Size = new System.Drawing.Size(133, 40);
+            this.btnLoadWH.TabIndex = 19;
+            this.btnLoadWH.Text = "重新读取资料";
+            this.btnLoadWH.Click += new System.EventHandler(this.btnLoadWH_Click);
             // 
             // gridShipment
             // 
@@ -109,15 +161,16 @@
             this.ColCustomer,
             this.ColCarton,
             this.ColOrderDate,
-            this.ColOrderStatus});
-            styleFormatCondition1.Appearance.BackColor = System.Drawing.Color.Red;
-            styleFormatCondition1.Appearance.Options.UseBackColor = true;
-            styleFormatCondition1.ApplyToRow = true;
-            styleFormatCondition1.Column = this.ColShipMethod;
-            styleFormatCondition1.Condition = DevExpress.XtraGrid.FormatConditionEnum.Equal;
-            styleFormatCondition1.Value1 = "Sea";
+            this.ColOrderStatus,
+            this.ColInvoiceNo});
+            styleFormatCondition2.Appearance.BackColor = System.Drawing.Color.Red;
+            styleFormatCondition2.Appearance.Options.UseBackColor = true;
+            styleFormatCondition2.ApplyToRow = true;
+            styleFormatCondition2.Column = this.ColShipMethod;
+            styleFormatCondition2.Condition = DevExpress.XtraGrid.FormatConditionEnum.Equal;
+            styleFormatCondition2.Value1 = "Sea";
             this.gridView1.FormatConditions.AddRange(new DevExpress.XtraGrid.StyleFormatCondition[] {
-            styleFormatCondition1});
+            styleFormatCondition2});
             this.gridView1.GridControl = this.gridShipment;
             this.gridView1.Name = "gridView1";
             this.gridView1.OptionsBehavior.AllowAddRows = DevExpress.Utils.DefaultBoolean.False;
@@ -223,15 +276,6 @@
             this.ColMoveDate.VisibleIndex = 8;
             this.ColMoveDate.Width = 46;
             // 
-            // ColShipMethod
-            // 
-            this.ColShipMethod.Caption = "寄货方式";
-            this.ColShipMethod.FieldName = "ShipMethod";
-            this.ColShipMethod.Name = "ColShipMethod";
-            this.ColShipMethod.Visible = true;
-            this.ColShipMethod.VisibleIndex = 9;
-            this.ColShipMethod.Width = 36;
-            // 
             // ColSalesOrderNo
             // 
             this.ColSalesOrderNo.Caption = "销售单号";
@@ -297,47 +341,13 @@
             this.ColOrderStatus.VisibleIndex = 14;
             this.ColOrderStatus.Width = 67;
             // 
-            // txtTime
+            // ColInvoiceNo
             // 
-            this.txtTime.Location = new System.Drawing.Point(333, 37);
-            this.txtTime.Name = "txtTime";
-            this.txtTime.Properties.ReadOnly = true;
-            this.txtTime.Size = new System.Drawing.Size(237, 20);
-            this.txtTime.TabIndex = 20;
-            this.txtTime.TabStop = false;
-            // 
-            // btnLoadWH
-            // 
-            this.btnLoadWH.Appearance.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnLoadWH.Appearance.Options.UseFont = true;
-            this.btnLoadWH.Location = new System.Drawing.Point(22, 17);
-            this.btnLoadWH.Name = "btnLoadWH";
-            this.btnLoadWH.Size = new System.Drawing.Size(133, 40);
-            this.btnLoadWH.TabIndex = 19;
-            this.btnLoadWH.Text = "重新读取资料";
-            this.btnLoadWH.Click += new System.EventHandler(this.btnLoadWH_Click);
-            // 
-            // labelControl1
-            // 
-            this.labelControl1.Location = new System.Drawing.Point(181, 40);
-            this.labelControl1.Name = "labelControl1";
-            this.labelControl1.Size = new System.Drawing.Size(24, 14);
-            this.labelControl1.TabIndex = 21;
-            this.labelControl1.Text = "狀态";
-            // 
-            // cboStatus
-            // 
-            this.cboStatus.EditValue = "未寄货";
-            this.cboStatus.Location = new System.Drawing.Point(227, 37);
-            this.cboStatus.Name = "cboStatus";
-            this.cboStatus.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
-            this.cboStatus.Properties.Items.AddRange(new object[] {
-            "所有",
-            "未寄货"});
-            this.cboStatus.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
-            this.cboStatus.Size = new System.Drawing.Size(100, 20);
-            this.cboStatus.TabIndex = 22;
+            this.ColInvoiceNo.Caption = "发票号码";
+            this.ColInvoiceNo.FieldName = "InvoiceNo";
+            this.ColInvoiceNo.Name = "ColInvoiceNo";
+            this.ColInvoiceNo.Visible = true;
+            this.ColInvoiceNo.VisibleIndex = 16;
             // 
             // frmShipment
             // 
@@ -349,10 +359,10 @@
             this.Text = "寄货单资料";
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).EndInit();
             this.splitContainerControl1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.cboStatus.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtTime.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridShipment)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtTime.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cboStatus.Properties)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -383,5 +393,6 @@
         private DevExpress.XtraEditors.SimpleButton btnLoadWH;
         private DevExpress.XtraEditors.ComboBoxEdit cboStatus;
         private DevExpress.XtraEditors.LabelControl labelControl1;
+        private DevExpress.XtraGrid.Columns.GridColumn ColInvoiceNo;
     }
 }
