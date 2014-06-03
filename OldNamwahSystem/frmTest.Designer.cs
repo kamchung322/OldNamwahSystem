@@ -36,6 +36,7 @@
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             this.btnSOLines = new DevExpress.XtraEditors.SimpleButton();
+            this.btnStringTest = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this.txtStringList.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtCartonNo.Properties)).BeginInit();
             this.SuspendLayout();
@@ -107,11 +108,21 @@
             this.btnSOLines.Text = "SalesOrderLine";
             this.btnSOLines.Click += new System.EventHandler(this.btnSOLines_Click);
             // 
+            // btnStringTest
+            // 
+            this.btnStringTest.Location = new System.Drawing.Point(197, 168);
+            this.btnStringTest.Name = "btnStringTest";
+            this.btnStringTest.Size = new System.Drawing.Size(134, 56);
+            this.btnStringTest.TabIndex = 6;
+            this.btnStringTest.Text = "String Test";
+            this.btnStringTest.Click += new System.EventHandler(this.btnStringTest_Click);
+            // 
             // frmTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(702, 322);
+            this.Controls.Add(this.btnStringTest);
             this.Controls.Add(this.btnSOLines);
             this.Controls.Add(this.labelControl2);
             this.Controls.Add(this.labelControl1);
@@ -139,5 +150,6 @@
         private DevExpress.XtraEditors.LabelControl labelControl1;
         private DevExpress.XtraEditors.LabelControl labelControl2;
         private DevExpress.XtraEditors.SimpleButton btnSOLines;
+        private DevExpress.XtraEditors.SimpleButton btnStringTest;
     }
 }

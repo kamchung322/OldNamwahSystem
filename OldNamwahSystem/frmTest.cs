@@ -75,14 +75,25 @@ namespace OldNamwahSystem
 
         private void btnSOLines_Click(object sender, EventArgs e)
         {
-            List<SalesOrderLine> SOLines = SalesOrderLine.LoadListMySQL("WHERE CustomerItemNo = '238370214' ", "");
-            SOLines = SplitOrder.SplitSOLineByDateAndPriority(SOLines);
-            SOLines = SplitOrder.SortSOLines(SOLines);
+            List<SalesOrderLine> SOLines = SalesOrderLine.LoadListMySQL("WHERE OrderNo = '5133139' AND OrderIndex = 37 ", "");
+            MySql.Data.MySqlClient.MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL();
+            SOLines[0].CnnMySQL = CnnMySQL;
 
-            foreach(SalesOrderLine SOLine in SOLines)
-            {
-                System.Diagnostics.Debug.Print(string.Format("Date : {0}.  Priority : {1}", SOLine.PromisedDate, SOLine.Priority));
-            }
+            SOLines[0].UpdateAllRecord();
+            
+            //SOLines = SplitOrder.SplitSOLineByDateAndPriority(SOLines);
+            //SOLines = SplitOrder.SortSOLines(SOLines);
+
+            //foreach(SalesOrderLine SOLine in SOLines)
+            //{
+            //    System.Diagnostics.Debug.Print(string.Format("Date : {0}.  Priority : {1}", SOLine.PromisedDate, SOLine.Priority));
+            //}
+        }
+
+        private void btnStringTest_Click(object sender, EventArgs e)
+        {
+            string Test = "Per Wallis's request";
+            MessageBox.Show (string.Format("{0}\n{1}",Test,Test.Replace("'", "''")));
         }
     }
 }

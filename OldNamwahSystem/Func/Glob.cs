@@ -46,7 +46,7 @@ namespace OldNamwahSystem.Func
             catch (Exception ex)
             {
                 Logger.Error(ex.Message);
-                DevExpress.XtraEditors.XtraMessageBox.Show(ex.Message);
+                //DevExpress.XtraEditors.XtraMessageBox.Show(ex.Message);
             }
             Logger.Info("結束");
         }
@@ -85,7 +85,7 @@ namespace OldNamwahSystem.Func
             catch (Exception ex)
             {
                 Logger.Error(ex.Message);
-                DevExpress.XtraEditors.XtraMessageBox.Show(ex.Message);
+                //DevExpress.XtraEditors.XtraMessageBox.Show(ex.Message);
             }
 
             Logger.Info("結束");

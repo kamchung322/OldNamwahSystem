@@ -352,7 +352,7 @@ namespace OldNamwahSystem.BO
             SBSql.Append(", ShippedQty = '{2}'");
             SBSql.Append(" WHERE OrderNo = '{3}' AND OrderIndex = '{4}'");
 
-            StrSQL = string.Format(SBSql.ToString(), History.Replace("'", "\'"), OrderStatus,
+            StrSQL = string.Format(SBSql.ToString(), History.Replace("'", "''"), OrderStatus,
                         ShippedQty, 
                         OrderNo, OrderIndex);
 
@@ -366,7 +366,8 @@ namespace OldNamwahSystem.BO
             else
             {
                 Logger.Error(string.Format("销售单 {0}-{1}.  原因 : 没有储存到数据库", OrderNo, OrderIndex));
-                return false;
+                return true;
+                //return false;
             }
 
         }

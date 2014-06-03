@@ -372,7 +372,7 @@ namespace OldNamwahSystem.BO
                         SalesOrderNo, SalesOrderIndex,
                         ShipMethod, SoType,
                         OrderStatus, LastModifiedDate.ToString("yyyy-MM-dd hh:mm:ss"),
-                        History.Replace("'", "\'") , OrderNo);
+                        History.Replace("'", "''") , OrderNo);
 
             AffectRecord = CnnMySQL.Execute(StrSQL);
 
@@ -406,7 +406,7 @@ namespace OldNamwahSystem.BO
                         SalesOrderNo, SalesOrderIndex,
                         ShipMethod, SoType,
                         OrderStatus, LastModifiedDate.ToString("yyyy-MM-dd hh:mm:ss"),
-                        History.Replace("'", "\'"), OrderNo);
+                        History.Replace("'", "''"), OrderNo);
 
             AffectRecord = CnnMySQL.Execute(StrSQL);
 
