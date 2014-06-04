@@ -11,7 +11,9 @@ namespace OldNamwahSystem.BO
     class Item
     {
         readonly static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
+        /// <summary>
+        ///  dkdkdkdk
+        /// </summary>
         private float _SalesPrice = 0;
         private int _BoxQty = 0;
         private string _QCStatus = "";
