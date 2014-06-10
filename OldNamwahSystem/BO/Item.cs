@@ -4,13 +4,11 @@ using System.Linq;
 using OldNamwahSystem.Func;
 using MySql.Data.MySqlClient;
 using Dapper;
-using log4net;
 
 namespace OldNamwahSystem.BO
 {
     class Item
     {
-        readonly static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         /// <summary>
         ///  dkdkdkdk
         /// </summary>
@@ -49,11 +47,11 @@ namespace OldNamwahSystem.BO
 
         public static Item Load(string INo)
         {
-            Logger.Info("开始");
+            Logger.For(typeof(Item)).Info(string.Format("开始.  产品编码 {0}", INo));
             using (MySqlConnection cnn = ServerHelper.ConnectToMySQL("namwah"))
             {
                 string StrSQL = String.Format("SELECT Item.*, ItemType.ItemTypeName as ItemType, Material.Name as Material FROM Item  LEFT Join ItemType on Item.ItemType = ItemType.Oid  LEFT Join Material on Item.Material = Material.Oid WHERE Item.ItemNo = '{0}'", INo);
-                Logger.Info("结束");
+                Logger.For(typeof(Item)).Info(string.Format("结束.  产品编码 {0}", INo));
                 return cnn.Query<Item>(StrSQL).SingleOrDefault();
             }
         }

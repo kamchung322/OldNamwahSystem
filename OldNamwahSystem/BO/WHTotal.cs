@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using log4net;
 using OldNamwahSystem.Func;
 
 namespace OldNamwahSystem.BO
@@ -10,11 +9,9 @@ namespace OldNamwahSystem.BO
     {
         public const string SZInvPath = "http://nwszmail/public/namwah/Inventory/sz_Finished/";
 
-        static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         public static WHTotal LoadByExchange(string ItemNo)
         {
-            Logger.Info(string.Format("开始.  编码 : {0}", ItemNo));
+            Logger.For(typeof(WHTotal)).Info(string.Format("开始.  编码 : {0}", ItemNo));
             ADODB.Connection Cnn = ServerHelper.ConnectExchange(SZInvPath);
             ADODB.Record Rst = new ADODB.Record();
             WHTotal WHTotal = new WHTotal();
@@ -23,11 +20,11 @@ namespace OldNamwahSystem.BO
             {
                 Rst.Open(string.Format("{0}{1}.eml", SZInvPath, ItemNo), Cnn, ADODB.ConnectModeEnum.adModeReadWrite, ADODB.RecordCreateOptionsEnum.adOpenIfExists, ADODB.RecordOpenOptionsEnum.adDelayFetchFields, "namwah", "ParaW0rld");
                 WHTotal.InitFromExchange(Rst);
-                Logger.Info(string.Format("结束.  编码 : {0}", ItemNo));
+                Logger.For(typeof(WHTotal)).Info(string.Format("结束.  编码 : {0}", ItemNo));
             }
             catch(Exception ex)
             {
-                Logger.Error(string.Format("编码 {0} :  原因 : {1}.", ItemNo, ex.Message));
+                Logger.For(typeof(WHTotal)).Error(string.Format("编码 {0} :  原因 : {1}.", ItemNo, ex.Message));
                 return null;
             }
 
@@ -40,7 +37,7 @@ namespace OldNamwahSystem.BO
             if (Glob.IsDebugMode)
                 return true;
 
-            Logger.Info(string.Format("开始.  编码 : {0}", ItemNo));
+            Logger.For(this).Info(string.Format("开始.  编码 : {0}", ItemNo));
             ADODB.Connection Cnn = ServerHelper.ConnectExchange(SZInvPath);
             ADODB.Record Rec = new ADODB.Record();
 
@@ -52,12 +49,12 @@ namespace OldNamwahSystem.BO
                 Rec.Fields["nw:inv:availqty"].Value = int.Parse(Qty.ToString()) - int.Parse(QAQty.ToString());
                 Rec.Fields["nw:inv:defectqty"].Value = int.Parse(DefectQty.ToString());
                 Rec.Fields.Update();
-                Logger.Info(string.Format("结束.  编码 : {0}", ItemNo));
+                Logger.For(this).Info(string.Format("结束.  编码 : {0}", ItemNo));
                 return true;
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("编码 {0} :  原因 : {1}.", ItemNo, ex.Message));
+                Logger.For(this).Error(string.Format("编码 {0} :  原因 : {1}.", ItemNo, ex.Message));
                 return false;
             }
         }

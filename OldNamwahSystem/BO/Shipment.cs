@@ -6,7 +6,6 @@ using MySql.Data.MySqlClient;
 using System.Linq;
 using System.Text;
 using OldNamwahSystem.Func;
-using log4net;
 using Dapper;
 
 namespace OldNamwahSystem.BO
@@ -16,26 +15,24 @@ namespace OldNamwahSystem.BO
         public const string SHIPMENTPATH = "http://nwszmail/public/namwah/Shipping/ShipmentOrders/";
         public MySqlConnection CnnMySQL;
 
-        static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         public static Dictionary<string, Shipment> LoadMySQL(string StrFilter, string StrOrderBy)
         {
-            Logger.Info("开始");
+            Logger.For(typeof(Shipment)).Info("开始");
             using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
             {
                 string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
-                Logger.Info("结束");
+                Logger.For(typeof(Shipment)).Info("结束");
                 return cnn.Query<Shipment>(StrSQL).ToDictionary<Shipment, string>(k=>k.OrderNo);
             }
         }
 
         public static Shipment LoadMySQL(string OrderNo)
         {
-            Logger.Info("开始");
+            Logger.For(typeof(Shipment)).Info("开始");
             using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
             {
                 string StrSQL = string.Format("SELECT * FROM Shipment WHERE OrderNo = '{0}'", OrderNo);
-                Logger.Info("结束");
+                Logger.For(typeof(Shipment)).Info("结束");
 
                 return cnn.Query<Shipment>(StrSQL).SingleOrDefault();
             }
@@ -43,11 +40,11 @@ namespace OldNamwahSystem.BO
 
         public static List<Shipment> LoadListByMySQL(string StrFilter, string StrOrderBy)
         {
-            Logger.Info("开始");
+            Logger.For(typeof(Shipment)).Info("开始");
             using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
             {
                 string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
-                Logger.Info("结束");
+                Logger.For(typeof(Shipment)).Info("结束");
                 return cnn.Query<Shipment>(StrSQL).ToList<Shipment>();
             }
         }
@@ -156,7 +153,7 @@ namespace OldNamwahSystem.BO
 
             if (SQty + ArrivedQty > MoveQty)
             {
-                Logger.Error(string.Format("寄货单号{0}. 已装箱数{1}({2}+{3})不能大于寄货数量{4}",
+                Logger.For(this).Error(string.Format("寄货单号{0}. 已装箱数{1}({2}+{3})不能大于寄货数量{4}",
                     OrderNo, SQty + ArrivedQty, ArrivedQty, SQty, MoveQty));
 
                 throw new Exception(string.Format("已装箱数{0}({1}+{2})不能大于寄货数量{3}", 
@@ -201,7 +198,7 @@ namespace OldNamwahSystem.BO
 
             if (SOLine == null)
             {
-                Logger.Error(string.Format("寄货单号{0}, 产品编码{1}, 找不到销售单号{2}-{3}.", 
+                Logger.For(this).Error(string.Format("寄货单号{0}, 产品编码{1}, 找不到销售单号{2}-{3}.", 
                     OrderNo, ItemNo, SalesOrderNo, SalesOrderIndex));
                 throw new Exception(string.Format("找不到此销售单号{0}-{1}"
                     , SalesOrderNo, SalesOrderIndex));
@@ -249,7 +246,7 @@ namespace OldNamwahSystem.BO
 
         private bool UpdateToExchange()
         {
-            Logger.Info(string.Format("寄货单号 {0}.  开始", OrderNo));
+            Logger.For(this).Info(string.Format("寄货单号 {0}.  开始", OrderNo));
 
             ADODB.Connection Cnn = new ADODB.Connection();
             ADODB.Record Rec = new ADODB.Record();
@@ -269,17 +266,17 @@ namespace OldNamwahSystem.BO
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("寄货单号 {0}不能储存.  原因 : {1}.", OrderNo, ex.Message));
+                Logger.For(this).Error(string.Format("寄货单号 {0}不能储存.  原因 : {1}.", OrderNo, ex.Message));
                 return false;
             }
 
-            Logger.Info(string.Format("寄货单号 {0}.  结束", OrderNo));
+            Logger.For(this).Info(string.Format("寄货单号 {0}.  结束", OrderNo));
             return true;
         }
 
         private bool InsertToExchange()
         {
-            Logger.Info(string.Format("开始.  寄货单号 {0}.", OrderNo));
+            Logger.For(this).Info(string.Format("开始.  寄货单号 {0}.", OrderNo));
 
             ADODB.Connection Cnn = new ADODB.Connection();
             ADODB.Record Rec = new ADODB.Record();
@@ -295,7 +292,7 @@ namespace OldNamwahSystem.BO
 
                     if (OrderNo == "")
                     {
-                        Logger.Error("原因 : 不能取得寄货单号.");
+                        Logger.For(this).Error("原因 : 不能取得寄货单号.");
                         return false;
                     }
 
@@ -311,7 +308,7 @@ namespace OldNamwahSystem.BO
                 {
                     if (Attempt == 2)
                     {
-                        Logger.Error(string.Format("不能建立寄货单.  原因 : {0}.", ex.Message));
+                        Logger.For(this).Error(string.Format("不能建立寄货单.  原因 : {0}.", ex.Message));
                         return false;
                     }
                     else
@@ -333,13 +330,13 @@ namespace OldNamwahSystem.BO
             RecToExchange(Rec);
 
             Rec.Fields.Update();
-            Logger.Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
+            Logger.For(this).Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
             return true;
         }
 
         public  bool SaveToMySQL()
         {
-            Logger.Info(string.Format("开始.  寄货单号 {0}.", OrderNo));
+            Logger.For(this).Info(string.Format("开始.  寄货单号 {0}.", OrderNo));
 
             StringBuilder SBSql = new StringBuilder();
             String StrSQL = "";
@@ -378,7 +375,7 @@ namespace OldNamwahSystem.BO
 
             if (AffectRecord > 0)
             {
-                Logger.Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
+                Logger.For(this).Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
                 return true;
             }
 
@@ -412,12 +409,12 @@ namespace OldNamwahSystem.BO
 
             if (AffectRecord > 0)
             {
-                Logger.Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
+                Logger.For(this).Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
                 return true;
             }
             else
             {
-                Logger.Error(string.Format("寄货单号 {0}.  原因 : 没有储存到数据库", OrderNo));
+                Logger.For(this).Error(string.Format("寄货单号 {0}.  原因 : 没有储存到数据库", OrderNo));
                 return false;
             }
         }

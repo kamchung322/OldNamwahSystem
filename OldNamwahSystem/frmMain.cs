@@ -18,7 +18,7 @@ namespace OldNamwahSystem
             InitializeComponent();
         }
 
-        static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        
 
         private void navBarFQCShipment_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
         {
@@ -51,7 +51,7 @@ namespace OldNamwahSystem
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            Logger.Info(string.Format("Debug Mode is {0}", Glob.IsDebugMode));
+            Logger.For(this).Info(string.Format("Debug Mode is {0}", Glob.IsDebugMode));
             CheckingSecurity();
         }
 

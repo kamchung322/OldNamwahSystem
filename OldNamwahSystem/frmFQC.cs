@@ -18,7 +18,7 @@ namespace OldNamwahSystem
     {
         JobSchedule JS;
         BindingList<SoCompress> SOCompressList;
-        static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        
 
         public frmFQC()
         {

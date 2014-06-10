@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using log4net;
 using OldNamwahSystem.Func;
 
 namespace OldNamwahSystem.BO
@@ -10,15 +9,13 @@ namespace OldNamwahSystem.BO
     {
         public const string JSPATH = "http://nwszmail/public/namwah/WorkOrders/SZProduction/JobSchedule/";
 
-        static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         public static JobSchedule LoadExchange(string StrJSNo)
         {
             ADODB.Connection Cnn = new ADODB.Connection();
             ADODB.Record Rec = new ADODB.Record();
             JobSchedule JS = new JobSchedule();
 
-            Logger.Info(string.Format("开始.  单号 : {0}.", StrJSNo));
+            Logger.For(typeof(JobSchedule)).Info(string.Format("开始.  单号 : {0}.", StrJSNo));
 
             Cnn = ServerHelper.ConnectExchange(JSPATH);
 
@@ -29,11 +26,11 @@ namespace OldNamwahSystem.BO
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("单号 : {0}.  原因 : {1}", StrJSNo, ex.Message));
+                Logger.For(typeof(JobSchedule)).Error(string.Format("单号 : {0}.  原因 : {1}", StrJSNo, ex.Message));
                 return null;
             }
 
-            Logger.Info(string.Format("结束.  单号 : {0}.", StrJSNo));
+            Logger.For(typeof(JobSchedule)).Info(string.Format("结束.  单号 : {0}.", StrJSNo));
 
             return JS;
         }
@@ -63,7 +60,7 @@ namespace OldNamwahSystem.BO
             if (Glob.IsDebugMode)
                 return true;
 
-            Logger.Info(string.Format("Order No : {0}. Start.", OrderNo));
+            Logger.For(this).Info(string.Format("Order No : {0}. Start.", OrderNo));
 
             ADODB.Connection Cnn = new ADODB.Connection();
             ADODB.Record Rec = new ADODB.Record();
@@ -76,7 +73,7 @@ namespace OldNamwahSystem.BO
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("Order No : {0}. Error : {1}.", OrderNo, ex.Message));
+                Logger.For(this).Error(string.Format("Order No : {0}. Error : {1}.", OrderNo, ex.Message));
                 return false;
             }
 
@@ -92,7 +89,7 @@ namespace OldNamwahSystem.BO
             Rec.Fields["nw:js:activelocation"].Value = "Q";
             Rec.Fields.Update();
 
-            Logger.Info(string.Format("Order No : {0}. End.", OrderNo));
+            Logger.For(this).Info(string.Format("Order No : {0}. End.", OrderNo));
 
             return true;
         }

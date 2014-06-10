@@ -12,14 +12,11 @@ using OldNamwahSystem.BO;
 using OldNamwahSystem.Func;
 using Microsoft.VisualBasic;
 using MySql.Data.MySqlClient;
-using log4net;
 
 namespace OldNamwahSystem
 {
     public partial class frmShipOrderExist : DevExpress.XtraEditors.XtraForm
     {
-        static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         private int CartonNo = 0;
         System.Media.SoundPlayer PlayOK;
         System.Media.SoundPlayer PlayError;
@@ -276,7 +273,7 @@ namespace OldNamwahSystem
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("不能打开 mp_sz_exitSZ.xls.  原因 : {0}", ex.Message));
+                Logger.For(this).Error(string.Format("不能打开 mp_sz_exitSZ.xls.  原因 : {0}", ex.Message));
             }
 
         }

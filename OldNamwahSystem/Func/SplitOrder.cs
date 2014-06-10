@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using log4net;
 using OldNamwahSystem.BO;
 
 namespace OldNamwahSystem.Func
 {
     class SplitOrder
     {
-        static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         public static List<SalesOrderLine> SortSOLines(List<SalesOrderLine> SOLines)
         {
             return SOLines.OrderBy(S => S.PromisedDate).OrderByDescending(S => S.Priority).ToList();
@@ -202,7 +199,7 @@ namespace OldNamwahSystem.Func
             }
             catch(Exception ex)
             {
-                Logger.Error(string.Format("PromisedDateList : {0}.  Error : {1}", PromisedDateList, ex.Message));
+                Logger.For(typeof(SplitOrder)).Error(string.Format("PromisedDateList : {0}.  Error : {1}", PromisedDateList, ex.Message));
                 //throw ex;
             }
 
@@ -331,7 +328,7 @@ namespace OldNamwahSystem.Func
             }
             catch(Exception ex)
             {
-                Logger.Error(string.Format("PriorityList : {0}.  Error : {1}", PriorityList, ex.Message));
+                Logger.For(typeof(SplitOrder)).Error(string.Format("PriorityList : {0}.  Error : {1}", PriorityList, ex.Message));
             }
 
             return DictTmp;

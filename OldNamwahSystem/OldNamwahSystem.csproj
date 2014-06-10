@@ -165,6 +165,7 @@
     </Compile>
     <Compile Include="Func\ExchangeHelper.cs" />
     <Compile Include="Func\Glob.cs" />
+    <Compile Include="Func\Logger.cs" />
     <Compile Include="Func\ServerHelper.cs" />
     <Compile Include="Func\SplitOrder.cs" />
     <Compile Include="Label\BoxLabel.cs" />

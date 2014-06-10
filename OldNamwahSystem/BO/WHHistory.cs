@@ -11,25 +11,25 @@ namespace OldNamwahSystem.BO
 
         public const string SZInvHisPath = "http://nwszmail/public/namwah/Inventory/sz_Finished/History/";
 
-        static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        
 
         public bool PostFromShipment()
         {
             if (Glob.IsDebugMode)
                 return true;
 
-            Logger.Info(string.Format("开始.  编码 : {0}", ItemNo));
+            Logger.For(this).Info(string.Format("开始.  编码 : {0}", ItemNo));
             WHTotal WHTotal = WHTotal.LoadByExchange(ItemNo);
 
             if (WHTotal == null)
             {
-                Logger.Error(string.Format("找不到此编码 {0}的仓存总数.", ItemNo));
+                Logger.For(this).Error(string.Format("找不到此编码 {0}的仓存总数.", ItemNo));
                 return false;
             }
 
             if (WHTotal.AvailQty < Qty)
             {
-                Logger.Error(string.Format("编码 : {0}, 可用数量 {1} 少於寄货数 {2}.", ItemNo, WHTotal.AvailQty, Qty));
+                Logger.For(this).Error(string.Format("编码 : {0}, 可用数量 {1} 少於寄货数 {2}.", ItemNo, WHTotal.AvailQty, Qty));
                 return false;
             }
 
@@ -46,7 +46,7 @@ namespace OldNamwahSystem.BO
             if (Glob.IsDebugMode)
                 return true;
 
-            Logger.Info(string.Format("开始.  编码 : {0}", ItemNo));
+            Logger.For(this).Info(string.Format("开始.  编码 : {0}", ItemNo));
 
             ADODB.Record Rec = new ADODB.Record();
             string Subject = string.Format("{0}_{1}", DateTime.Now.ToString("yyMMddhhmmss"), ItemNo ) ;
@@ -84,7 +84,7 @@ namespace OldNamwahSystem.BO
 
             Rec.Fields.Update();
 
-            Logger.Info(string.Format("结束.  编码 : {0}", ItemNo));
+            Logger.For(this).Info(string.Format("结束.  编码 : {0}", ItemNo));
 
             return true;
         }

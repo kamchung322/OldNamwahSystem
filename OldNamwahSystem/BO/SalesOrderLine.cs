@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OldNamwahSystem.Func;
-using log4net;
 using Dapper;
 using MySql.Data.MySqlClient;
 
@@ -12,40 +11,38 @@ namespace OldNamwahSystem.BO
 {
     class SalesOrderLine
     {
-        static ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         public const string SOLINEPATH = "http://nwszmail/public/namwah/sales/timex/purchaseorders/";
         public MySqlConnection CnnMySQL;
 
         public static Dictionary<string, SalesOrderLine> LoadDictMySQL(string StrFilter, string StrOrderBy)
         {
-            Logger.Info("开始");
+            Logger.For(typeof(SalesOrderLine)).Info("开始");
             using (IDbConnection cnn = ServerHelper.ConnectToMySQL())
             {
                 string StrSQL = string.Format("SELECT * FROM SalesOrderLine {0} {1}", StrFilter, StrOrderBy);
-                Logger.Info("结束");
+                Logger.For(typeof(SalesOrderLine)).Info("结束");
                 return cnn.Query<SalesOrderLine>(StrSQL).ToDictionary<SalesOrderLine, string>(k => string.Format("{0}-{1}", k.OrderNo, k.OrderIndex));
             }
         }
 
         public static List<SalesOrderLine> LoadListMySQL(string StrFilter, string StrOrderBy)
         {
-            Logger.Info("开始");
+            Logger.For(typeof(SalesOrderLine)).Info("开始");
             using (IDbConnection cnn = ServerHelper.ConnectToMySQL())
             {
                 string StrSQL = string.Format("SELECT * FROM SalesOrderLine {0} {1}", StrFilter, StrOrderBy);
-                Logger.Info("结束");
+                Logger.For(typeof(SalesOrderLine)).Info("结束");
                 return cnn.Query<SalesOrderLine>(StrSQL).ToList<SalesOrderLine>();
             }
         }
 
         public static SalesOrderLine LoadMySQL(string OrderNo, int OrderIndex)
         {
-            Logger.Info("开始");
+            Logger.For(typeof(SalesOrderLine)).Info("开始");
             using (IDbConnection cnn = ServerHelper.ConnectToMySQL())
             {
                 string StrSQL = string.Format("SELECT * FROM SalesOrderLine WHERE ( OrderNo = '{0}' AND OrderIndex = {1} ) ", OrderNo, OrderIndex);
-                Logger.Info("结束");
+                Logger.For(typeof(SalesOrderLine)).Info("结束");
                 return cnn.Query<SalesOrderLine>(StrSQL).SingleOrDefault();
             }
         }
@@ -97,7 +94,6 @@ namespace OldNamwahSystem.BO
             }
 
             return Shipments;
-
         }
 
         public static void CalcActualBalance(List<Shipment> Shipments, Dictionary<string, SalesOrderLine> SOLines)
@@ -230,7 +226,7 @@ namespace OldNamwahSystem.BO
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(string.Format("销售单{0}-{1}, 不能建立寄货单, 原因 : {2}", OrderNo, OrderIndex, ex.Message));
+                    Logger.For(this).Error(string.Format("销售单{0}-{1}, 不能建立寄货单, 原因 : {2}", OrderNo, OrderIndex, ex.Message));
                     TranMySQL.Rollback();
                     CnnMySQL.Close();
                     return null;
@@ -253,7 +249,7 @@ namespace OldNamwahSystem.BO
 
             if (SQty + ShippedQty > NeedQty)
             {
-                Logger.Error(string.Format("销售单{0}-{1}. 已交数量{2}({3}+{4})不能大于要求数量{5}",
+                Logger.For(this).Error(string.Format("销售单{0}-{1}. 已交数量{2}({3}+{4})不能大于要求数量{5}",
                     OrderNo, OrderIndex, SQty + ShippedQty, ShippedQty, SQty, NeedQty));
 
                 throw new Exception(string.Format("已交数量{0}({1}+{2})不能大于要求数量{3}",
@@ -309,7 +305,7 @@ namespace OldNamwahSystem.BO
 
         private bool UpdateToExchange()
         {
-            Logger.Info(string.Format("销售单{0}-{1}.  开始.", OrderNo, OrderIndex));
+            Logger.For(this).Info(string.Format("销售单{0}-{1}.  开始.", OrderNo, OrderIndex));
 
             ADODB.Connection Cnn = new ADODB.Connection();
             ADODB.Record Rec = new ADODB.Record();
@@ -331,17 +327,17 @@ namespace OldNamwahSystem.BO
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("销售单{0}-{1} 不能储存.  原因 : {2}.", OrderNo, OrderIndex, ex.Message));
+                Logger.For(this).Error(string.Format("销售单{0}-{1} 不能储存.  原因 : {2}.", OrderNo, OrderIndex, ex.Message));
                 return false;
             }
 
-            Logger.Info(string.Format("销售单{0}-{1}.  结束", OrderNo, OrderIndex ));
+            Logger.For(this).Info(string.Format("销售单{0}-{1}.  结束", OrderNo, OrderIndex ));
             return true;
         }
 
         private bool SaveToMySQL()
         {
-            Logger.Info(string.Format("销售单 {0}-{1}.  开始", OrderNo, OrderIndex));
+            Logger.For(this).Info(string.Format("销售单 {0}-{1}.  开始", OrderNo, OrderIndex));
 
             StringBuilder SBSql = new StringBuilder();
             String StrSQL = "";
@@ -360,12 +356,12 @@ namespace OldNamwahSystem.BO
 
             if (AffectRecord > 0)
             {
-                Logger.Info(string.Format("销售单 {0}-{1}.  结束", OrderNo, OrderIndex));
+                Logger.For(this).Info(string.Format("销售单 {0}-{1}.  结束", OrderNo, OrderIndex));
                 return true;
             }
             else
             {
-                Logger.Error(string.Format("销售单 {0}-{1}.  原因 : 没有储存到数据库", OrderNo, OrderIndex));
+                Logger.For(this).Error(string.Format("销售单 {0}-{1}.  原因 : 没有储存到数据库", OrderNo, OrderIndex));
                 return true;
                 //return false;
             }
