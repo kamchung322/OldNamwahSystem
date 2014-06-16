@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using MySql.Data.MySqlClient;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
+using MySql.Data.MySqlClient;
 using OldNamwahSystem.Func;
 using Dapper;
 
@@ -33,7 +31,6 @@ namespace OldNamwahSystem.BO
             {
                 string StrSQL = string.Format("SELECT * FROM Shipment WHERE OrderNo = '{0}'", OrderNo);
                 Logger.For(typeof(Shipment)).Info("结束");
-
                 return cnn.Query<Shipment>(StrSQL).SingleOrDefault();
             }
         }
@@ -49,13 +46,12 @@ namespace OldNamwahSystem.BO
             }
         }
 
-        public bool DeductWH()
+        public void DeductWH()
         {
             if (OrderStatus != "Waiting")
-                return false;
+                return;
 
             WHHistory WHHistory = new WHHistory();
-
             WHHistory.ItemNo = ItemNo;
             WHHistory.ItemName = ItemName;
             WHHistory.ItemType = ItemType;
@@ -68,14 +64,10 @@ namespace OldNamwahSystem.BO
             WHHistory.Supplier = Destination;
             WHHistory.Status = "Complete";
             WHHistory.IO = "Output";
-
-            if (WHHistory.PostFromShipment() == false)
-                return false;
+            WHHistory.PostFromShipment();
 
             ChangeStatus("TSI");
             UpdateAllRecord();
-
-            return true;
         }
         
         private void RecToExchange(ADODB.Record Rec)
@@ -218,85 +210,66 @@ namespace OldNamwahSystem.BO
             OrderStatus = NewStatus;
         }
 
-        public bool UpdateAllRecord()
+        public void UpdateAllRecord()
         {
             if (Glob.IsDebugMode)
-                return true;
+                return;
 
-            bool IsOK = UpdateToExchange();
-
-            if (IsOK)
-                IsOK = SaveToMySQL();
-
-            return IsOK;
+            UpdateToExchange();
+            SaveToMySQL();
         }
 
-        public bool InsertAllRecord()
+        public void InsertAllRecord()
         {
             if (Glob.IsDebugMode)
-                return true;
+                return;
 
-            bool IsOK = InsertToExchange();
-
-            if (IsOK)
-                IsOK = SaveToMySQL();
-
-            return IsOK;
+            InsertToExchange();
+            SaveToMySQL();
         }
 
-        private bool UpdateToExchange()
+        private void UpdateToExchange()
         {
-            Logger.For(this).Info(string.Format("寄货单号 {0}.  开始", OrderNo));
-
-            ADODB.Connection Cnn = new ADODB.Connection();
-            ADODB.Record Rec = new ADODB.Record();
-            Cnn = ServerHelper.ConnectExchange(SHIPMENTPATH);
-            string StrSQL = "";
-
-            StrSQL = string.Format("{0}{1}.eml", SHIPMENTPATH, OrderNo);
-
             try
             {
+                Logger.For(this).Info(string.Format("寄货单号 {0}.  开始", OrderNo));
+                ADODB.Connection Cnn = ServerHelper.ConnectExchange(SHIPMENTPATH);
+                ADODB.Record Rec = new ADODB.Record();
+                string StrSQL = string.Format("{0}{1}.eml", SHIPMENTPATH, OrderNo);
                 Rec.Open(StrSQL, Cnn, ADODB.ConnectModeEnum.adModeReadWrite, 
                     ADODB.RecordCreateOptionsEnum.adFailIfNotExists,
                     ADODB.RecordOpenOptionsEnum.adOpenRecordUnspecified,
                         "Namwah", "ParaW0rld");
                 RecToExchange(Rec);
                 Rec.Fields.Update();
+                Rec.Close();
+                Rec = null;
+                Cnn = null;
+                Logger.For(this).Info(string.Format("寄货单号 {0}.  结束", OrderNo));
             }
             catch (Exception ex)
             {
                 Logger.For(this).Error(string.Format("寄货单号 {0}不能储存.  原因 : {1}.", OrderNo, ex.Message));
-                return false;
+                throw ex;
             }
-
-            Logger.For(this).Info(string.Format("寄货单号 {0}.  结束", OrderNo));
-            return true;
         }
 
-        private bool InsertToExchange()
+        private void InsertToExchange()
         {
             Logger.For(this).Info(string.Format("开始.  寄货单号 {0}.", OrderNo));
 
-            ADODB.Connection Cnn = new ADODB.Connection();
+            ADODB.Connection Cnn = ServerHelper.ConnectExchange(SHIPMENTPATH);
             ADODB.Record Rec = new ADODB.Record();
-            Cnn = ServerHelper.ConnectExchange(SHIPMENTPATH);
-            string StrSQL = "";
 
             for (int Attempt = 0; Attempt < 2; Attempt++)
             {
+                Rec = new ADODB.Record();
                 try
                 {
                     if (OrderNo == "")
                         OrderNo = Glob.GetShipmentBarcode();
 
-                    if (OrderNo == "")
-                    {
-                        Logger.For(this).Error("原因 : 不能取得寄货单号.");
-                        return false;
-                    }
-
-                    StrSQL = string.Format("{0}{1}.eml", SHIPMENTPATH, OrderNo);
+                    string StrSQL = string.Format("{0}{1}.eml", SHIPMENTPATH, OrderNo);
 
                     Rec.Open(StrSQL, Cnn, ADODB.ConnectModeEnum.adModeReadWrite,
                         ADODB.RecordCreateOptionsEnum.adCreateNonCollection,
@@ -309,13 +282,11 @@ namespace OldNamwahSystem.BO
                     if (Attempt == 2)
                     {
                         Logger.For(this).Error(string.Format("不能建立寄货单.  原因 : {0}.", ex.Message));
-                        return false;
+                        throw ex;
                     }
                     else
                     {
                         Glob.IncreaseShipmentBarcode(10);
-                        OrderNo = Glob.GetShipmentBarcode();
-                        Rec = new ADODB.Record();
                     }
                 }
             }
@@ -328,19 +299,14 @@ namespace OldNamwahSystem.BO
             AddHistory(string.Format("Original Ship Qty is {0}", MoveQty));
 
             RecToExchange(Rec);
-
             Rec.Fields.Update();
             Logger.For(this).Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
-            return true;
         }
 
-        public  bool SaveToMySQL()
+        public void SaveToMySQL()
         {
             Logger.For(this).Info(string.Format("开始.  寄货单号 {0}.", OrderNo));
-
             StringBuilder SBSql = new StringBuilder();
-            String StrSQL = "";
-            int AffectRecord = 0;
 
             SBSql.Append("UPDATE Shipment SET");
             SBSql.Append(" ArrivedQty = '{0}', Carton = '{1}', CompDate = '{2}'");
@@ -357,7 +323,7 @@ namespace OldNamwahSystem.BO
             SBSql.Append(", OrderStatus = '{26}', LastModifiedDate = '{27}', History = '{28}' ");
             SBSql.Append(" WHERE OrderNo = '{29}'");
 
-            StrSQL = string.Format(SBSql.ToString(), ArrivedQty, Carton, CompDate.ToString("yyyy-MM-dd"),
+            string StrSQL = string.Format(SBSql.ToString(), ArrivedQty, Carton, CompDate.ToString("yyyy-MM-dd"),
                         Customer, CustomerItemNo, CustomerPrice,
                         MoveDate.ToString("yyyy-MM-dd"), MoveQty,
                         OrderDate.ToString("yyyy-MM-dd hh:mm:ss"), Origin,
@@ -371,12 +337,12 @@ namespace OldNamwahSystem.BO
                         OrderStatus, LastModifiedDate.ToString("yyyy-MM-dd hh:mm:ss"),
                         History.Replace("'", "''") , OrderNo);
 
-            AffectRecord = CnnMySQL.Execute(StrSQL);
+            int AffectRecord = CnnMySQL.Execute(StrSQL);
 
             if (AffectRecord > 0)
             {
                 Logger.For(this).Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
-                return true;
+                return;
             }
 
             SBSql.Clear();
@@ -410,12 +376,12 @@ namespace OldNamwahSystem.BO
             if (AffectRecord > 0)
             {
                 Logger.For(this).Info(string.Format("结束.  寄货单号 {0}.", OrderNo));
-                return true;
+                return;
             }
             else
             {
                 Logger.For(this).Error(string.Format("寄货单号 {0}.  原因 : 没有储存到数据库", OrderNo));
-                return false;
+                throw new Exception("没有储存到数据库");
             }
         }
 

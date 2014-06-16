@@ -11,28 +11,22 @@ namespace OldNamwahSystem.BO
 
         public static JobSchedule LoadExchange(string StrJSNo)
         {
-            ADODB.Connection Cnn = new ADODB.Connection();
-            ADODB.Record Rec = new ADODB.Record();
-            JobSchedule JS = new JobSchedule();
-
-            Logger.For(typeof(JobSchedule)).Info(string.Format("开始.  单号 : {0}.", StrJSNo));
-
-            Cnn = ServerHelper.ConnectExchange(JSPATH);
-
             try
             {
+                Logger.For(typeof(JobSchedule)).Info(string.Format("开始.  单号 : {0}.", StrJSNo));
+                ADODB.Connection Cnn = ServerHelper.ConnectExchange(JSPATH);
+                ADODB.Record Rec = new ADODB.Record();
                 Rec.Open(string.Format("{0}{1}.eml", JSPATH, StrJSNo), Cnn, ADODB.ConnectModeEnum.adModeReadWrite, ADODB.RecordCreateOptionsEnum.adFailIfNotExists, ADODB.RecordOpenOptionsEnum.adOpenRecordUnspecified, "namwah", "ParaW0rld");
+                JobSchedule JS = new JobSchedule();
                 JS.InitFromRec(Rec);
+                Logger.For(typeof(JobSchedule)).Info(string.Format("结束.  单号 : {0}.", StrJSNo));
+                return JS;
             }
             catch (Exception ex)
             {
                 Logger.For(typeof(JobSchedule)).Error(string.Format("单号 : {0}.  原因 : {1}", StrJSNo, ex.Message));
-                return null;
+                throw ex;
             }
-
-            Logger.For(typeof(JobSchedule)).Info(string.Format("结束.  单号 : {0}.", StrJSNo));
-
-            return JS;
         }
 
         private void InitFromRec(ADODB.Record Rec)
@@ -55,43 +49,37 @@ namespace OldNamwahSystem.BO
             Item = Item.Load(ItemNo);
         }
 
-        public bool UpdateFQC()
+        public void UpdateFQC()
         {
             if (Glob.IsDebugMode)
-                return true;
-
-            Logger.For(this).Info(string.Format("Order No : {0}. Start.", OrderNo));
-
-            ADODB.Connection Cnn = new ADODB.Connection();
-            ADODB.Record Rec = new ADODB.Record();
-
-            Cnn = ServerHelper.ConnectExchange(JSPATH);
+                return;
 
             try
             {
+                Logger.For(this).Info(string.Format("Order No : {0}. Start.", OrderNo));
+                ADODB.Connection Cnn = ServerHelper.ConnectExchange(JSPATH);
+                ADODB.Record Rec = new ADODB.Record();
+
                 Rec.Open(string.Format("{0}{1}.eml", JSPATH, OrderNo), Cnn, ADODB.ConnectModeEnum.adModeReadWrite, ADODB.RecordCreateOptionsEnum.adFailIfNotExists, ADODB.RecordOpenOptionsEnum.adOpenRecordUnspecified, "namwah", "ParaW0rld");
+                Rec.Fields["nw:fqc:inspector"].Value = FQCInspector;
+
+                if (FQCInspectionDate != DateTime.MinValue)
+                    Rec.Fields["nw:fqc:inspectiondate"].Value = FQCInspectionDate;
+
+                Rec.Fields["nw:fqc:sample:inspectqty"].Value = int.Parse(ActiveQty.ToString());
+                Rec.Fields["nw:js:irno"].Value = IrNo;
+                Rec.Fields["nw:js:activeqty"].Value = int.Parse(ActiveQty.ToString());
+                Rec.Fields["nw:js:status"].Value = "Complete";
+                Rec.Fields["nw:js:activelocation"].Value = "Q";
+                Rec.Fields.Update();
+
+                Logger.For(this).Info(string.Format("Order No : {0}. End.", OrderNo));
             }
             catch (Exception ex)
             {
                 Logger.For(this).Error(string.Format("Order No : {0}. Error : {1}.", OrderNo, ex.Message));
-                return false;
+                throw ex;
             }
-
-            Rec.Fields["nw:fqc:inspector"].Value = FQCInspector;
-            
-            if (FQCInspectionDate != DateTime.MinValue)
-                Rec.Fields["nw:fqc:inspectiondate"].Value = FQCInspectionDate;
-
-            Rec.Fields["nw:fqc:sample:inspectqty"].Value = int.Parse(ActiveQty.ToString());
-            Rec.Fields["nw:js:irno"].Value = IrNo;
-            Rec.Fields["nw:js:activeqty"].Value = int.Parse(ActiveQty.ToString());
-            Rec.Fields["nw:js:status"].Value = "Complete";
-            Rec.Fields["nw:js:activelocation"].Value = "Q";
-            Rec.Fields.Update();
-
-            Logger.For(this).Info(string.Format("Order No : {0}. End.", OrderNo));
-
-            return true;
         }
 
         #region Field

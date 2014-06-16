@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
@@ -12,7 +8,7 @@ using OldNamwahSystem.BO;
 
 namespace OldNamwahSystem
 {
-    public partial class frmTest : DevExpress.XtraEditors.XtraForm
+    public partial class frmTest : XtraForm
     {
         public frmTest()
         {
@@ -94,6 +90,19 @@ namespace OldNamwahSystem
         {
             string Test = "Per Wallis's request";
             MessageBox.Show (string.Format("{0}\n{1}",Test,Test.Replace("'", "''")));
+        }
+
+        private void btnIsNullOrEmpty_Click(object sender, EventArgs e)
+        {
+            string Test = null;
+            MessageBox.Show(string.Format("{0}", string.IsNullOrEmpty(Test)));
+            
+            Test = "";
+            MessageBox.Show(string.Format("{0}", string.IsNullOrEmpty(Test)));
+
+            Test = "abc";
+            MessageBox.Show(string.Format("{0}", string.IsNullOrEmpty(Test)));
+
         }
     }
 }

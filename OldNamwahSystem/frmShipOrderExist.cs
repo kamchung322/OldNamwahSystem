@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Text;
 using System.Linq;
 using System.Windows.Forms;
@@ -15,7 +12,7 @@ using MySql.Data.MySqlClient;
 
 namespace OldNamwahSystem
 {
-    public partial class frmShipOrderExist : DevExpress.XtraEditors.XtraForm
+    public partial class frmShipOrderExist : XtraForm
     {
         private int CartonNo = 0;
         System.Media.SoundPlayer PlayOK;
@@ -54,44 +51,43 @@ namespace OldNamwahSystem
         {
             double TmpDeductQty = DeductQty;
             double SQty = 0;
-            MySqlConnection CnnMySQL;
             
             List<Shipment> Shipments = Shipment.LoadListByMySQL(
                         string.Format("WHERE (SalesOrderNo = '{0}' AND CustomerItemNo = '{1}' AND OrderStatus = 'Ready' )", SalesOrderNo, ItemNo),
                         "ORDER BY OrderDate ASC");
-            CnnMySQL = ServerHelper.ConnectToMySQL();
 
-            foreach (Shipment ShipOrder in Shipments)
+            using (MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL())
             {
-                MySqlTransaction TranMySQL = CnnMySQL.BeginTransaction();
-
-                try
+                foreach (Shipment ShipOrder in Shipments)
                 {
-                    if (TmpDeductQty > ShipOrder.MoveQty - ShipOrder.ArrivedQty)
-                        SQty = ShipOrder.MoveQty - ShipOrder.ArrivedQty;
-                    else
-                        SQty = TmpDeductQty;
+                    using (MySqlTransaction TranMySQL = CnnMySQL.BeginTransaction())
+                    {
+                        try
+                        {
+                            if (TmpDeductQty > ShipOrder.MoveQty - ShipOrder.ArrivedQty)
+                                SQty = ShipOrder.MoveQty - ShipOrder.ArrivedQty;
+                            else
+                                SQty = TmpDeductQty;
 
-                    TmpDeductQty = TmpDeductQty - SQty;
+                            TmpDeductQty = TmpDeductQty - SQty;
 
-                    ShipOrder.CnnMySQL = CnnMySQL;
-                    ShipOrder.AddShippedQty(SQty);
-                    ShipOrder.AddCartonNo(CartonNo);
-                    ShipOrder.UpdateAllRecord();
-                    TranMySQL.Commit();
+                            ShipOrder.CnnMySQL = CnnMySQL;
+                            ShipOrder.AddShippedQty(SQty);
+                            ShipOrder.AddCartonNo(CartonNo);
+                            ShipOrder.UpdateAllRecord();
+                            TranMySQL.Commit();
 
-                    if (TmpDeductQty == 0)
-                        break;
+                            if (TmpDeductQty == 0)
+                                break;
+                        }
+                        catch (Exception ex)
+                        {
+                            TranMySQL.Rollback();
+                            ShowError(string.Format("不能更新, 原因 : {0}", ex.Message));
+                        }
+                    }
                 }
-                catch (Exception ex)
-                {
-                    TranMySQL.Rollback();
-                    ShowError(string.Format("不能更新, 原因 : {0}", ex.Message));
-                }
-                
             }
-
-            CnnMySQL.Close();
 
             if (TmpDeductQty > 0)
                 ShowError(string.Format("还有余数{0}", TmpDeductQty));
@@ -314,19 +310,25 @@ namespace OldNamwahSystem
 
             using (MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL())
             {
-                MySqlTransaction TransMySQL = CnnMySQL.BeginTransaction();
-
-                foreach (Shipment S in Shipments)
+                using (MySqlTransaction TransMySQL = CnnMySQL.BeginTransaction())
                 {
-                    Shipment Ship = Shipment.LoadMySQL(S.OrderNo);
-                    Ship.CnnMySQL = CnnMySQL;
-                    Ship.AddShippedQty(Ship.MoveQty - Ship.ArrivedQty);
-                    Ship.AddCartonNo(CartonNo);
-
-                    if (Ship.UpdateAllRecord() == false)
-                        SBMsg.AppendLine(string.Format("寄货单号 : {0}.  本厂编码 : {1}.  数量 : {2}.", Ship.OrderNo, Ship.ItemNo, Ship.MoveQty));
+                    foreach (Shipment S in Shipments)
+                    {
+                        Shipment Ship = Shipment.LoadMySQL(S.OrderNo);
+                        Ship.CnnMySQL = CnnMySQL;
+                        Ship.AddShippedQty(Ship.MoveQty - Ship.ArrivedQty);
+                        Ship.AddCartonNo(CartonNo);
+                        try
+                        {
+                            Ship.UpdateAllRecord();
+                        }
+                        catch
+                        {
+                            SBMsg.AppendLine(string.Format("寄货单号 : {0}.  本厂编码 : {1}.  数量 : {2}.", Ship.OrderNo, Ship.ItemNo, Ship.MoveQty));
+                        }
+                    }
+                    TransMySQL.Commit();
                 }
-                TransMySQL.Commit();
             }
 
             if (SBMsg.ToString() != "")

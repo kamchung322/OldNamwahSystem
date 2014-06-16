@@ -11,12 +11,10 @@ namespace OldNamwahSystem.BO
 
         public const string SZInvHisPath = "http://nwszmail/public/namwah/Inventory/sz_Finished/History/";
 
-        
-
-        public bool PostFromShipment()
+        public void PostFromShipment()
         {
             if (Glob.IsDebugMode)
-                return true;
+                return;
 
             Logger.For(this).Info(string.Format("开始.  编码 : {0}", ItemNo));
             WHTotal WHTotal = WHTotal.LoadByExchange(ItemNo);
@@ -24,27 +22,24 @@ namespace OldNamwahSystem.BO
             if (WHTotal == null)
             {
                 Logger.For(this).Error(string.Format("找不到此编码 {0}的仓存总数.", ItemNo));
-                return false;
+                throw new Exception(string.Format("找不到此编码 {0}的仓存总数.", ItemNo));
             }
 
             if (WHTotal.AvailQty < Qty)
             {
                 Logger.For(this).Error(string.Format("编码 : {0}, 可用数量 {1} 少於寄货数 {2}.", ItemNo, WHTotal.AvailQty, Qty));
-                return false;
+                throw new Exception(string.Format("编码 : {0}, 可用数量 {1} 少於寄货数 {2}.", ItemNo, WHTotal.AvailQty, Qty));
             }
 
             WHTotal.Qty = WHTotal.Qty - Qty;
-
-            if (WHTotal.UpdateToExchange() == false)
-                return false;
-
-            return InsertToExchange();
+            WHTotal.UpdateToExchange();
+            InsertToExchange();
         }
 
-        public bool InsertToExchange()
+        public void InsertToExchange()
         {
             if (Glob.IsDebugMode)
-                return true;
+                return;
 
             Logger.For(this).Info(string.Format("开始.  编码 : {0}", ItemNo));
 
@@ -63,7 +58,7 @@ namespace OldNamwahSystem.BO
             Rec.Fields["nw:partname"].Value = ItemName;
             Rec.Fields["nw:parttype"].Value = ItemType;
             Rec.Fields["nw:inv:refno"].Value = RefNo;
-            Rec.Fields["nw:inv:reftype"].Value = RefType; // "SS"
+            Rec.Fields["nw:inv:reftype"].Value = RefType; 
             Rec.Fields["nw:inv:totalqty"].Value = int.Parse(Qty.ToString());
             Rec.Fields["nw:inv:sectionqty"].Value = Qty.ToString();
             Rec.Fields["nw:inv:vendefectqty"].Value = int.Parse(VendDefectQty.ToString());
@@ -85,8 +80,6 @@ namespace OldNamwahSystem.BO
             Rec.Fields.Update();
 
             Logger.For(this).Info(string.Format("结束.  编码 : {0}", ItemNo));
-
-            return true;
         }
 
         #region field

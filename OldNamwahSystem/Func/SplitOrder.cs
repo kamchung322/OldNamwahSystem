@@ -369,7 +369,7 @@ namespace OldNamwahSystem.Func
             }
         }
 
-        private double _Qty;
+        private double _Qty = 0;
         public double Qty
         {
             get
@@ -382,7 +382,7 @@ namespace OldNamwahSystem.Func
             }
         }
 
-        private int _Priority;
+        private int _Priority = 0;
         public int Priority
         {
             get

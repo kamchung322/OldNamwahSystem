@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Text;
 using System.Linq;
 using System.Windows.Forms;
@@ -40,14 +37,11 @@ namespace OldNamwahSystem
         private void btnChangeQty_Click(object sender, EventArgs e)
         {
             int[] Rows = gridView1.GetSelectedRows();
-            string TmpQty = "";
-            double NewQty = 0;
 
             if (Rows.GetUpperBound(0) == -1)
             {
-                XtraMessageBox.Show("请先选取要列印的资料 !!", "注意!!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                XtraMessageBox.Show("请先选取要更改寄货数量 !!", "注意!!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
-
             }
 
             Shipment Shipment = (Shipment)gridView1.GetRow(Rows[0]);
@@ -61,14 +55,14 @@ namespace OldNamwahSystem
             }
 
             StringBuilder SBMsg = new StringBuilder();
-
             SBMsg.AppendLine(string.Format("寄货单号 : {0}", Shipment.OrderNo ));
             SBMsg.AppendLine(string.Format("本厂编码 : {0}", Shipment.ItemNo));
             SBMsg.AppendLine(string.Format("名称 : {0}", Shipment.ItemName));
             SBMsg.AppendLine(string.Format("原数量 : {0}", Shipment.MoveQty));
             SBMsg.AppendLine("请输入更改数量 !! ");
 
-            TmpQty = Interaction.InputBox(SBMsg.ToString(), "更改数量", "");
+            string TmpQty = Interaction.InputBox(SBMsg.ToString(), "更改数量", "");
+            double NewQty = 0;
 
             if (TmpQty == "")
                 return;
@@ -135,17 +129,23 @@ namespace OldNamwahSystem
 
             using (MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL())
             {
-                MySqlTransaction TransMySQL = CnnMySQL.BeginTransaction();
-            
-                foreach (Shipment S in Shipments)
+                using (MySqlTransaction TransMySQL = CnnMySQL.BeginTransaction())
                 {
-                    Shipment Ship = Shipment.LoadMySQL(S.OrderNo);
-                    Ship.CnnMySQL = CnnMySQL;
-
-                    if (Ship.DeductWH() == false)
-                        SBMsg.AppendLine(string.Format("寄货单号 : {0}.  本厂编码 : {1}.  数量 : {2}.", Ship.OrderNo, Ship.ItemNo, Ship.MoveQty));
+                    foreach (Shipment S in Shipments)
+                    {
+                        Shipment Ship = Shipment.LoadMySQL(S.OrderNo);
+                        try
+                        {
+                            Ship.CnnMySQL = CnnMySQL;
+                            Ship.DeductWH();
+                        }
+                        catch
+                        {
+                            SBMsg.AppendLine(string.Format("寄货单号 : {0}.  本厂编码 : {1}.  数量 : {2}.", Ship.OrderNo, Ship.ItemNo, Ship.MoveQty));
+                        }
+                    }
+                    TransMySQL.Commit();
                 }
-                TransMySQL.Commit();
             }
 
             if (SBMsg.ToString() != "")

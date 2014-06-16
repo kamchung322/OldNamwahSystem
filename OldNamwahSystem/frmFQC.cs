@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using OldNamwahSystem.BO;
 using OldNamwahSystem.Func;
-using log4net;
 
 namespace OldNamwahSystem
 {
@@ -18,7 +13,6 @@ namespace OldNamwahSystem
     {
         JobSchedule JS;
         BindingList<SoCompress> SOCompressList;
-        
 
         public frmFQC()
         {
@@ -28,7 +22,6 @@ namespace OldNamwahSystem
         private void txtJSNo_Enter(object sender, EventArgs e)
         {
             txtJSNo.SelectAll();
-
         }
 
         private void txtJSNo_Leave(object sender, EventArgs e)
@@ -45,44 +38,44 @@ namespace OldNamwahSystem
                 return;
             }
 
-            JS = JobSchedule.LoadExchange(txtJSNo.Text);
+            try
+            {
+                JS = JobSchedule.LoadExchange(txtJSNo.Text);
 
-            if (JS == null)
+                if (JS.ActiveLocation != "Q")
+                {
+                    XtraMessageBox.Show(string.Format("这张单现时地点为{0}, 不在FQC, 所以不能过帐 !!",
+                        JS.ActiveLocation));
+
+                    txtJSNo.SelectAll();
+                    txtJSNo.Focus();
+                    return;
+                }
+
+                txtPartNo.Text = JS.ItemNo;
+                txtPartName.Text = JS.ItemName;
+                txtPartType.Text = JS.ItemType;
+                txtShipQty.Text = JS.ActiveQty.ToString();
+
+                if (JS.Item != null)
+                {
+                    txtRevision.Text = JS.Item.CustomerRevision;
+                    txtBoxQty.Text = JS.Item.BoxQty.ToString();
+                }
+
+                txtIRNo.Text = JS.IrNo;
+                txtInspector.Text = JS.FQCInspector;
+                txtJSStatus.Text = JS.OrderStatus;
+
+                EnableFindButton(false);
+                txtShipQty.SelectAll();
+                txtShipQty.Focus();
+            }
+            catch
             {
                 XtraMessageBox.Show(string.Format("找不到此单号 {0}, 请查清楚再试!!", txtJSNo.Text));
                 txtJSNo.Focus();
-                return;
             }
-
-            if (JS.ActiveLocation != "Q")
-            {
-                XtraMessageBox.Show(string.Format("这张单现时地点为{0}, 不在FQC, 所以不能过帐 !!",
-                    JS.ActiveLocation));
-
-                txtJSNo.SelectAll();
-                txtJSNo.Focus();
-                return;
-            }
-
-            txtPartNo.Text = JS.ItemNo;
-            txtPartName.Text = JS.ItemName;
-            txtPartType.Text = JS.ItemType;
-            txtShipQty.Text = JS.ActiveQty.ToString();
-
-            if (JS.Item != null)
-            {
-                txtRevision.Text = JS.Item.CustomerRevision;
-                txtBoxQty.Text = JS.Item.BoxQty.ToString();
-            }
-
-            txtIRNo.Text = JS.IrNo;
-            txtInspector.Text = JS.FQCInspector;
-            txtJSStatus.Text = JS.OrderStatus;
-
-            EnableFindButton(false);
-            txtShipQty.SelectAll();
-            txtShipQty.Focus();
-
         }
 
         private void EnableFindButton(bool IsEnable)
@@ -157,7 +150,6 @@ namespace OldNamwahSystem
                 txtInspector.SelectAll();
                 txtInspector.Focus();
                 return false;
-
             }
 
             txtIRNo.Text = txtIRNo.Text.Trim();
@@ -167,7 +159,6 @@ namespace OldNamwahSystem
                 txtIRNo.SelectAll();
                 txtIRNo.Focus();
                 return false;
-
             }
 
             txtRevision.Text = txtRevision.Text.Trim();
@@ -177,7 +168,6 @@ namespace OldNamwahSystem
                 txtRevision.SelectAll();
                 txtRevision.Focus();
                 return false;
-
             }
 
             return true;
@@ -195,7 +185,6 @@ namespace OldNamwahSystem
                 txtShipQty.Properties.ReadOnly = false;
                 //btnTest.Visible = true;
             }
-
         }
 
         private void btnInputResult_Click(object sender, EventArgs e)
@@ -324,14 +313,14 @@ namespace OldNamwahSystem
 
         private bool UpdateFQCJS()
         {
+            if (Glob.IsDebugMode)
+                return true;
+
             if (JS == null)
             {
                 XtraMessageBox.Show("系统问题, 请退出重试 !!", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-
-            if (Glob.IsDebugMode)
-                return true;
 
             JS.ActiveQty = int.Parse(txtShipQty.Text);
             JS.FQCInspectionDate = DateTime.Now;
@@ -369,21 +358,16 @@ namespace OldNamwahSystem
 
         private bool ShipToSalesOrder()
         {
-            Dictionary<string, SalesOrderLine> SOLines = new Dictionary<string, SalesOrderLine>();
-            List<Shipment> Shipments = new List<Shipment>();
-            List<Shipment> NewShipments = new List<Shipment>();
-
             string ItemNo = txtPartNo.Text;
-            double RemainQty = double.Parse(txtShipQty.Text);
-
-            SOLines = SalesOrderLine.LoadDictMySQL(string.Format("WHERE NOT( OrderStatus = 'Complete') AND Priority >= 0 AND ItemNo = '{0}' ", ItemNo)
+            Dictionary<string, SalesOrderLine> SOLines = SalesOrderLine.LoadDictMySQL(string.Format("WHERE NOT( OrderStatus = 'Complete') AND Priority >= 0 AND ItemNo = '{0}' ", ItemNo)
                             , " ORDER BY  PromisedDate ASC , Priority DESC ");
+            double RemainQty = double.Parse(txtShipQty.Text);
 
             if (SOLines.Count > 0)
             {
-                Shipments = Shipment.LoadListByMySQL(string.Format("WHERE ( OrderStatus = 'Ready' OR OrderStatus = 'Waiting' OR OrderStatus = 'TSI' ) AND ItemNo = '{0}' ", ItemNo), "");
+                List<Shipment> Shipments = Shipment.LoadListByMySQL(string.Format("WHERE ( OrderStatus = 'Ready' OR OrderStatus = 'Waiting' OR OrderStatus = 'TSI' ) AND ItemNo = '{0}' ", ItemNo), "");
                 SalesOrderLine.CalcActualBalance(Shipments, SOLines);
-                NewShipments = SalesOrderLine.CreateShipmentOrders(ref RemainQty, SOLines, txtJSNo.Text);
+                List<Shipment> NewShipments = SalesOrderLine.CreateShipmentOrders(ref RemainQty, SOLines, txtJSNo.Text);
                 SOCompressList = SoCompress.CompressSO(NewShipments);
 
                 foreach (SoCompress SoComp in SOCompressList)
@@ -394,14 +378,12 @@ namespace OldNamwahSystem
                     SoComp.InspectStatus = txtInspectStatus.Text;
                     SoComp.JSNo = txtJSNo.Text;
                 }
-
             }
 
             if (RemainQty > 0)
                 ShipToWH(RemainQty);
 
             return true;
-
         }
 
         private void txtIRNo_Leave(object sender, EventArgs e)

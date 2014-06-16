@@ -10,7 +10,7 @@ namespace OldNamwahSystem.BO
     class Item
     {
         /// <summary>
-        ///  dkdkdkdk
+        ///  
         /// </summary>
         private float _SalesPrice = 0;
         private int _BoxQty = 0;
@@ -23,27 +23,6 @@ namespace OldNamwahSystem.BO
         private string _ItemNo = "";
 
         public Item() { }
-
-        public Item(ADODB.Recordset Rsts)
-        {
-            ItemNo = Rsts.Fields["ItemNo"].Value.ToString();
-            ItemName = Rsts.Fields["ItemName"].Value.ToString();
-            ItemType = Rsts.Fields["ItemTypeName"].Value.ToString();
-            CustomerItemNo = Rsts.Fields["CustomerItemNo"].Value.ToString();
-
-            if (Rsts.Fields["CustomerItemRevision"].Value != null)
-            {
-                if (Rsts.Fields["CustomerItemRevision"].Value.ToString() != "")
-                    CustomerRevision = Rsts.Fields["CustomerItemRevision"].Value.ToString();
-            }
-
-            SalesPrice = float.Parse(Rsts.Fields["SalesPrice"].Value.ToString());
-
-            Material = Rsts.Fields["Material"].Value.ToString();
-            BoxQty = int.Parse(Rsts.Fields["BoxQty"].Value.ToString());
-            QCStatus = "";
-
-        }
 
         public static Item Load(string INo)
         {
@@ -175,7 +154,6 @@ namespace OldNamwahSystem.BO
                 _SalesPrice = value;
             }
         }
-
 
     }
 }

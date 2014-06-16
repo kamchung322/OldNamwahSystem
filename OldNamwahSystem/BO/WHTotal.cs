@@ -32,17 +32,16 @@ namespace OldNamwahSystem.BO
 
         }
 
-        public bool UpdateToExchange()
+        public void UpdateToExchange()
         {
             if (Glob.IsDebugMode)
-                return true;
-
-            Logger.For(this).Info(string.Format("开始.  编码 : {0}", ItemNo));
-            ADODB.Connection Cnn = ServerHelper.ConnectExchange(SZInvPath);
-            ADODB.Record Rec = new ADODB.Record();
+                return ;
 
             try
             {
+                Logger.For(this).Info(string.Format("开始.  编码 : {0}", ItemNo));
+                ADODB.Connection Cnn = ServerHelper.ConnectExchange(SZInvPath);
+                ADODB.Record Rec = new ADODB.Record();
                 Rec.Open(string.Format("{0}{1}.eml", SZInvPath, ItemNo), Cnn, ADODB.ConnectModeEnum.adModeReadWrite, ADODB.RecordCreateOptionsEnum.adOpenIfExists, ADODB.RecordOpenOptionsEnum.adDelayFetchFields, "namwah", "ParaW0rld");
                 Rec.Fields["nw:inv:totalqty"].Value = int.Parse(Qty.ToString());
                 Rec.Fields["nw:inv:qaqty"].Value = int.Parse(QAQty.ToString());
@@ -50,12 +49,11 @@ namespace OldNamwahSystem.BO
                 Rec.Fields["nw:inv:defectqty"].Value = int.Parse(DefectQty.ToString());
                 Rec.Fields.Update();
                 Logger.For(this).Info(string.Format("结束.  编码 : {0}", ItemNo));
-                return true;
             }
             catch (Exception ex)
             {
                 Logger.For(this).Error(string.Format("编码 {0} :  原因 : {1}.", ItemNo, ex.Message));
-                return false;
+                throw ex;
             }
         }
 

@@ -55,20 +55,12 @@ namespace OldNamwahSystem.Func
             Logger.For(typeof(Glob)).Info("开始");
             try
             {
-                ADODB.Connection Cnn = new ADODB.Connection();
-                
-                Cnn = ServerHelper.ConnectExchange(BarcodePath);
+                ADODB.Connection Cnn = ServerHelper.ConnectExchange(BarcodePath);
                 ADODB.Record Rec = new ADODB.Record();
 
                 Rec.Open(BarcodePath, Cnn, ADODB.ConnectModeEnum.adModeReadWrite,
                     ADODB.RecordCreateOptionsEnum.adFailIfNotExists,
                     ADODB.RecordOpenOptionsEnum.adOpenRecordUnspecified, "Namwah", "ParaW0rld");
-                /*
-                Rec.Open(BarcodePath, cnn, ADODB.ConnectModeEnum.adModeReadWrite &
-                    ADODB.ConnectModeEnum.adModeShareDenyWrite, 
-                    ADODB.RecordCreateOptionsEnum.adFailIfNotExists,
-                    ADODB.RecordOpenOptionsEnum.adOpenRecordUnspecified, "Namwah", "ParaW0rld");
-                */
 
                 Prefix = Rec.Fields["nw:barcode:prefix"].Value.ToString();
                 NextSONo = int.Parse(Rec.Fields["nw:barcode:nextnumber"].Value.ToString());
@@ -81,13 +73,11 @@ namespace OldNamwahSystem.Func
             catch (Exception ex)
             {
                 Logger.For(typeof(Glob)).Error(ex.Message);
-                //DevExpress.XtraEditors.XtraMessageBox.Show(ex.Message);
+                throw ex;
             }
 
             Logger.For(typeof(Glob)).Info("結束");
             return Barcode;
         }
-
-
     }
 }
