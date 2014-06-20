@@ -149,15 +149,20 @@ namespace OldNamwahSystem
         private void btnChangeToAir_Click(object sender, EventArgs e)
         {
             List<Shipment> Shipments = GetSelectedShipment();
-
-            foreach (Shipment Ship in Shipments)
+            using (MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL())
             {
-                if (Ship.ShipMethod != "Air")
+                MySqlTransaction TranMySQL = CnnMySQL.BeginTransaction();
+                foreach (Shipment Ship in Shipments)
                 {
-                    Shipment ShipUpdate = Shipment.LoadMySQL(Ship.OrderNo);
-                    ShipUpdate.ShipMethod = "Air";
-                    ShipUpdate.UpdateAllRecord();
+                    if (Ship.ShipMethod != "Air")
+                    {
+                        Shipment ShipUpdate = Shipment.LoadMySQL(Ship.OrderNo);
+                        ShipUpdate.CnnMySQL = CnnMySQL;
+                        ShipUpdate.ShipMethod = "Air";
+                        ShipUpdate.UpdateAllRecord();
+                    }
                 }
+                TranMySQL.Commit();
             }
 
             LoadShipment();
@@ -166,17 +171,21 @@ namespace OldNamwahSystem
         private void btnChangeToSea_Click(object sender, EventArgs e)
         {
             List<Shipment> Shipments = GetSelectedShipment();
-
-            foreach (Shipment Ship in Shipments)
+            using (MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL())
             {
-                if (Ship.ShipMethod != "Sea")
+                MySqlTransaction TranMySQL = CnnMySQL.BeginTransaction();
+                foreach (Shipment Ship in Shipments)
                 {
-                    Shipment ShipUpdate = Shipment.LoadMySQL(Ship.OrderNo);
-                    ShipUpdate.ShipMethod = "Sea";
-                    ShipUpdate.UpdateAllRecord();
+                    if (Ship.ShipMethod != "Sea")
+                    {
+                        Shipment ShipUpdate = Shipment.LoadMySQL(Ship.OrderNo);
+                        ShipUpdate.CnnMySQL = CnnMySQL;
+                        ShipUpdate.ShipMethod = "Sea";
+                        ShipUpdate.UpdateAllRecord();
+                    }
                 }
+                TranMySQL.Commit();
             }
-
             LoadShipment();
         }
 
