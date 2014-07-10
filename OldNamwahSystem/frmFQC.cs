@@ -81,12 +81,11 @@ namespace OldNamwahSystem
         private void EnableFindButton(bool IsEnable)
         {
             btnLoad.Enabled = IsEnable;
-
             btnCancel.Enabled = !IsEnable;
             btnInputResult.Enabled = !IsEnable;
             //btnPrintBoxLabel.Enabled = !IsEnable;
             btnPrintIRLabel.Enabled = !IsEnable;
-
+            btnPrintTSICheckingLabel.Enabled = !IsEnable;
             txtJSNo.Properties.ReadOnly = !IsEnable;
 
             txtRevision.Properties.ReadOnly = IsEnable;
@@ -389,6 +388,32 @@ namespace OldNamwahSystem
         private void txtIRNo_Leave(object sender, EventArgs e)
         {
             txtIRNo.Text = txtIRNo.Text.ToUpper().Trim();
+        }
+
+        private void btnPrintTSICheckingLabel_Click(object sender, EventArgs e)
+        {
+            Label.BoxLabel BoxLabel = new Label.BoxLabel();
+
+            if (BoxLabel.IsReady == false)
+            {
+                XtraMessageBox.Show("打印机出现问题, 不能打印, 请重启打印机 !!", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            BoxLabel.ItemNo = txtPartNo.Text;
+            BoxLabel.ItemName = txtPartName.Text;
+            BoxLabel.ItemType = txtPartType.Text;
+            BoxLabel.Revision = txtRevision.Text;
+            BoxLabel.InspectStatus = txtInspectStatus.Text;
+            BoxLabel.Inspector = txtInspector.Text;
+            BoxLabel.InspectSpec = txtInspectSpec.Text;
+            BoxLabel.JSNo = txtJSNo.Text;
+            BoxLabel.IRNo = txtIRNo.Text;
+            BoxLabel.ShipQty = double.Parse(txtShipQty.Text);
+            BoxLabel.PrintTSICheckingLabel();
+            BoxLabel = null;
+            GC.Collect();
+
         }
     }
 }

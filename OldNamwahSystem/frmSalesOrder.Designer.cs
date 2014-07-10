@@ -67,6 +67,7 @@
             this.ColShippedQty = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColBalQty = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColPrice = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.ColIgnorePlanningReport = new DevExpress.XtraGrid.Columns.GridColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             this.splitContainerControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControl1)).BeginInit();
@@ -134,7 +135,7 @@
             this.chkSplitOrder.Properties.Caption = "要分单";
             this.chkSplitOrder.Size = new System.Drawing.Size(199, 19);
             this.chkSplitOrder.StyleController = this.layoutControl1;
-            this.chkSplitOrder.TabIndex = 9;
+            this.chkSplitOrder.TabIndex = 7;
             // 
             // txtTime
             // 
@@ -151,7 +152,7 @@
             this.txtCustomer.Name = "txtCustomer";
             this.txtCustomer.Size = new System.Drawing.Size(183, 20);
             this.txtCustomer.StyleController = this.layoutControl1;
-            this.txtCustomer.TabIndex = 5;
+            this.txtCustomer.TabIndex = 4;
             // 
             // cboStatus
             // 
@@ -162,7 +163,7 @@
             this.cboStatus.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
             this.cboStatus.Size = new System.Drawing.Size(148, 20);
             this.cboStatus.StyleController = this.layoutControl1;
-            this.cboStatus.TabIndex = 6;
+            this.cboStatus.TabIndex = 5;
             // 
             // txtItemName
             // 
@@ -170,7 +171,7 @@
             this.txtItemName.Name = "txtItemName";
             this.txtItemName.Size = new System.Drawing.Size(148, 20);
             this.txtItemName.StyleController = this.layoutControl1;
-            this.txtItemName.TabIndex = 3;
+            this.txtItemName.TabIndex = 2;
             // 
             // txtItemType
             // 
@@ -178,7 +179,7 @@
             this.txtItemType.Name = "txtItemType";
             this.txtItemType.Size = new System.Drawing.Size(159, 20);
             this.txtItemType.StyleController = this.layoutControl1;
-            this.txtItemType.TabIndex = 4;
+            this.txtItemType.TabIndex = 3;
             // 
             // txtSalesOrderNo
             // 
@@ -186,7 +187,7 @@
             this.txtSalesOrderNo.Name = "txtSalesOrderNo";
             this.txtSalesOrderNo.Size = new System.Drawing.Size(183, 20);
             this.txtSalesOrderNo.StyleController = this.layoutControl1;
-            this.txtSalesOrderNo.TabIndex = 1;
+            this.txtSalesOrderNo.TabIndex = 0;
             // 
             // txtItemNo
             // 
@@ -194,7 +195,7 @@
             this.txtItemNo.Name = "txtItemNo";
             this.txtItemNo.Size = new System.Drawing.Size(188, 20);
             this.txtItemNo.StyleController = this.layoutControl1;
-            this.txtItemNo.TabIndex = 2;
+            this.txtItemNo.TabIndex = 1;
             // 
             // btnReload
             // 
@@ -352,7 +353,8 @@
             this.ColNeedQty,
             this.ColShippedQty,
             this.ColBalQty,
-            this.ColPrice});
+            this.ColPrice,
+            this.ColIgnorePlanningReport});
             this.gridView1.GridControl = this.gridSOLine;
             this.gridView1.GroupCount = 1;
             this.gridView1.Name = "gridView1";
@@ -527,6 +529,12 @@
             this.ColPrice.VisibleIndex = 14;
             this.ColPrice.Width = 49;
             // 
+            // ColIgnorePlanningReport
+            // 
+            this.ColIgnorePlanningReport.Caption = "Ignore";
+            this.ColIgnorePlanningReport.FieldName = "IgnorePlanning";
+            this.ColIgnorePlanningReport.Name = "ColIgnorePlanningReport";
+            // 
             // frmSalesOrder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
@@ -605,5 +613,6 @@
         private DevExpress.XtraEditors.CheckEdit chkSplitOrder;
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem9;
         private DevExpress.XtraGrid.Columns.GridColumn ColPrice;
+        private DevExpress.XtraGrid.Columns.GridColumn ColIgnorePlanningReport;
     }
 }

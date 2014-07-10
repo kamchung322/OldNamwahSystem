@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using OldNamwahSystem.Func;
-using log4net;
 
 namespace OldNamwahSystem
 {
@@ -18,14 +12,11 @@ namespace OldNamwahSystem
             InitializeComponent();
         }
 
-        
-
         private void navBarFQCShipment_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)
         {
             frmFQC FromFQC = new frmFQC();
             FromFQC.MdiParent = this;
             FromFQC.Show();
-
         }
 
         private void navBarShipmentExit_LinkClicked(object sender, DevExpress.XtraNavBar.NavBarLinkEventArgs e)

@@ -222,6 +222,54 @@ namespace OldNamwahSystem.Label
             SendCommand("E");
         }
 
+        public void PrintTSICheckingLabel()
+        {
+            string TmpJsNo;
+            // Set Label Begin Sing
+            SendCommand("^L");
+            SendCommand("AH,20,866,1,1,0,3,For TSI Checking Purpose");
+            SendCommand("AF,612,1156,1,1,0,3,Part:");
+            SendCommand("AF,716,1150,1,1,0,3,Qty:");
+            SendCommand("AE,128,484,1,1,0,3,FQC Date:");
+            SendCommand("R602,80,694,968,3,3");
+            SendCommand("AF,454,1154,1,1,0,3,Name:");
+            SendCommand("R708,76,800,964,3,3");
+
+            SendCommand(string.Format("AE,128,268,1,1,0,3,{0}", DateTime.Today.ToString("yyyy-MM-dd")));
+            SendCommand(string.Format("AG,610,938,1,1,0,3,{0}-{1}", ItemNo, Revision));
+            SendCommand(string.Format("AG,712,938,1,1,0,3,{0}", ShipQty));
+            SendCommand("Lo,404,54,410,1167");
+
+            if (ItemName.Length > 30)
+            {
+                SendCommand(string.Format("AF,454,956,1,1,0,3,{0}", ItemName.Substring(0, 30)));
+                SendCommand(string.Format("AF,510,948,1,1,0,3,{0}", ItemName.Substring(30, ItemName.Length - 30)));
+            }
+            else
+            {
+                SendCommand(string.Format("AF,454,956,1,1,0,3,{0}", ItemName));
+            }
+
+            SendCommand("AE,128,1136,1,1,0,3,IR No:");
+            SendCommand(string.Format("AE,128,964,1,1,0,3,{0}({1})", IRNo, Inspector));
+            SendCommand("R440,80,586,970,3,3");
+            SendCommand("AE,190,1138,1,1,0,3,Type:");
+
+            if (Material == "")
+                SendCommand(string.Format("AE,190,964,1,1,0,3,{0}", ItemType));
+            else
+                SendCommand(string.Format("AE,190,964,1,1,0,3,{0}({1})", ItemType, Material));
+
+            TmpJsNo = JSNo;
+            TmpJsNo = TmpJsNo.Substring(ItemNo.Length, TmpJsNo.Length - ItemNo.Length);
+            TmpJsNo = string.Format("{0}-{1}{2}", ItemNo, Revision, TmpJsNo);
+
+            SendCommand(string.Format("BQ,256,1130,2,5,100,3,1,{0}QTY{1}", TmpJsNo, ShipQty));
+
+            //End label formatting mode and print label
+            SendCommand("E");
+        }
+
         private void PrintWHLabel()
         {
             string TmpJsNo;

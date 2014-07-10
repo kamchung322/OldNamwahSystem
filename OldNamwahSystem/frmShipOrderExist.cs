@@ -129,7 +129,6 @@ namespace OldNamwahSystem
             SalesOrderNo = TmpSalesOrderNo;
             ItemNo = TmpItemNo;
             DeductQty = double.Parse(TmpDeductQty);
-
         }
 
         private List<Shipment> GetSelectedShipment()
@@ -139,7 +138,7 @@ namespace OldNamwahSystem
 
             for (int i = 0; i <= Rows.GetUpperBound(0); i++)
             {
-                Shipment Shipment = (Shipment)gridView1.GetRow(Rows[i]);
+                Shipment Shipment = gridView1.GetRow(Rows[i]) as Shipment ;
                 ListTmp.Add(Shipment);
             }
 
@@ -198,7 +197,7 @@ namespace OldNamwahSystem
             if (Rows.GetUpperBound(0) == -1)
                 return;
 
-            Shipment Shipment = (Shipment)gridView1.GetRow(Rows[0]);
+            Shipment Shipment = gridView1.GetRow(Rows[0]) as Shipment;
             
             TmpQty = Interaction.InputBox("请输入更改数量 !", "更改数量", "");
 
@@ -291,23 +290,13 @@ namespace OldNamwahSystem
 
         private void DeductShipmentManually()
         {
-            int[] Rows = gridView1.GetSelectedRows();
-
-            if (Rows.GetUpperBound(0) == -1)
-            {
-                XtraMessageBox.Show("请先选取要手工寄货的资料 !!", "注意!!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            List<Shipment> Shipments = new List<Shipment>();
+            List<Shipment> Shipments = GetSelectedShipment();
             StringBuilder SBMsg = new StringBuilder();
-            SBMsg.AppendLine(string.Format("你选择把下列共 {0} 个出货项目, 请确认是否手工寄货 ??", Rows.GetUpperBound(0) + 1));
+            SBMsg.AppendLine(string.Format("你选择把下列共 {0} 个出货项目, 请确认是否手工寄货 ??", Shipments.Count + 1));
 
-            for (int i = 0; i <= Rows.GetUpperBound(0); i++)
+            foreach(Shipment Shipment in Shipments)
             {
-                Shipment Shipment = (Shipment)gridView1.GetRow(Rows[i]);
                 SBMsg.AppendLine(string.Format("寄货单号 : {0}.  本厂编码 : {1}.  数量 : {2}.", Shipment.OrderNo, Shipment.ItemNo, Shipment.MoveQty));
-                Shipments.Add(Shipment);
             }
 
             DialogResult dialogResult = XtraMessageBox.Show(SBMsg.ToString(), "确认手工寄货", MessageBoxButtons.YesNo);
