@@ -319,7 +319,7 @@ namespace OldNamwahSystem.BO
         // Fields...
         private DateTime _LastModifiedDate = DateTime.MinValue;
         private double _ShippedQty = 0;
-        private string _ShipMethod = "";
+        private string _ShipMethod = "Air";
         private string _Remark = "";
         private string _PromisedDateList = "";
         private DateTime _PromisedDate = DateTime.MinValue;
@@ -660,7 +660,8 @@ namespace OldNamwahSystem.BO
             }
             set
             {
-                _ShipMethod = value;
+                if (value != null && value != "")
+                    _ShipMethod = value;
             }
         }
 
