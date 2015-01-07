@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using OldNamwahSystem.BO;
+using NamwahSystem.Model.BO;
 
-namespace OldNamwahSystem.Func
+namespace NamwahSystem.Model.Func
 {
-    class SplitOrder
+    public class SplitOrder
     {
         public static List<SalesOrderLine> SortSOLinesByPromisedDateAndPriority(List<SalesOrderLine> SOLines)
         {
@@ -22,7 +22,7 @@ namespace OldNamwahSystem.Func
         public static List<SalesOrderLine> SplitSOLineByPromisedDateAndPriority(List<SalesOrderLine> SOLines)
         {
             List<SalesOrderLine> ListTmp = new List<SalesOrderLine>();
-            
+
             foreach (SalesOrderLine SOLine in SOLines)
             {
                 SOLine.InitPList();
@@ -66,11 +66,11 @@ namespace OldNamwahSystem.Func
                 for (int Index = 0; Index < DictPriority.Count; Index++)
                 {
                     var KvpPriority = DictPriority.ElementAt(Index);
-                    
-                //}
 
-                //foreach (KeyValuePair<int, double> KvpPriority in DictPriority)
-                //{
+                    //}
+
+                    //foreach (KeyValuePair<int, double> KvpPriority in DictPriority)
+                    //{
                     if (KvpPriority.Value > 0)
                     {
                         ProjInfo ProjInfo = new ProjInfo();
@@ -203,7 +203,7 @@ namespace OldNamwahSystem.Func
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.For(typeof(SplitOrder)).Error(string.Format("PromisedDateList : {0}.  Error : {1}", PromisedDateList, ex.Message));
                 //throw ex;
@@ -304,9 +304,9 @@ namespace OldNamwahSystem.Func
             // 0 (1498), -6 (602)
 
             Dictionary<int, double> DictTmp = new Dictionary<int, double>();
-            
+
             PriorityList = PriorityList.Trim();
-            
+
             if (PriorityList == "")
                 return DictTmp;
 
@@ -332,7 +332,7 @@ namespace OldNamwahSystem.Func
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.For(typeof(SplitOrder)).Error(string.Format("PriorityList : {0}.  Error : {1}", PriorityList, ex.Message));
             }
@@ -359,7 +359,7 @@ namespace OldNamwahSystem.Func
 
     }
 
-    class ProjInfo
+    public class ProjInfo
     {
         // Fields...
         private DateTime _Date;

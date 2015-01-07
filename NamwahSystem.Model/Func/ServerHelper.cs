@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using MySql.Data.MySqlClient;
 
-namespace OldNamwahSystem.Func
+namespace NamwahSystem.Model.Func
 {
-    class ServerHelper
+    public class ServerHelper
     {
         public static MySqlConnection ConnectToMySQL()
         {
-            //return ServerHelper.ConnectToMySQL("OldNamwahSystem");
             return ServerHelper.ConnectToMySQL(Glob.DefaultDatabase);
         }
 

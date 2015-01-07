@@ -1,50 +1,42 @@
 ﻿using System;
+using System.Data;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Collections.Generic;
+using NamwahSystem.Model.Func;
 using MySql.Data.MySqlClient;
-using OldNamwahSystem.Func;
 using Dapper;
-using NamwahSystem.Model.BO;
+using Dapper.Contrib.Extensions;
 
-namespace OldNamwahSystem.BO
+namespace NamwahSystem.Model.BO
 {
-    class Shipment
+    public class Shipment : BaseBusinessObject
     {
         public const string SHIPMENTPATH = "http://nwszmail/public/namwah/Shipping/ShipmentOrders/";
         public MySqlConnection CnnMySQL;
 
-        public static Dictionary<string, Shipment> LoadMySQL(string StrFilter, string StrOrderBy)
+        public static Dictionary<string, Shipment> LoadMySQL(MySqlConnection Cnn, string StrFilter, string StrOrderBy)
         {
             Logger.For(typeof(Shipment)).Info("开始");
-            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
-            {
-                string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
-                Logger.For(typeof(Shipment)).Info("结束");
-                return cnn.Query<Shipment>(StrSQL).ToDictionary<Shipment, string>(k=>k.OrderNo);
-            }
+            string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
+            Logger.For(typeof(Shipment)).Info("结束");
+            return Cnn.Query<Shipment>(StrSQL).ToDictionary<Shipment, string>(k => k.OrderNo);
         }
 
-        public static Shipment LoadMySQL(string OrderNo)
+        public static Shipment LoadMySQL(MySqlConnection Cnn, string OrderNo)
         {
             Logger.For(typeof(Shipment)).Info("开始");
-            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
-            {
-                string StrSQL = string.Format("SELECT * FROM Shipment WHERE OrderNo = '{0}'", OrderNo);
-                Logger.For(typeof(Shipment)).Info("结束");
-                return cnn.Query<Shipment>(StrSQL).SingleOrDefault();
-            }
+            string StrSQL = string.Format("SELECT * FROM Shipment WHERE OrderNo = '{0}'", OrderNo);
+            Logger.For(typeof(Shipment)).Info("结束");
+            return Cnn.Query<Shipment>(StrSQL).SingleOrDefault();
         }
 
-        public static List<Shipment> LoadListByMySQL(string StrFilter, string StrOrderBy)
+        public static List<Shipment> LoadListByMySQL(MySqlConnection Cnn, string StrFilter, string StrOrderBy)
         {
             Logger.For(typeof(Shipment)).Info("开始");
-            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
-            {
-                string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
-                Logger.For(typeof(Shipment)).Info("结束");
-                return cnn.Query<Shipment>(StrSQL).ToList<Shipment>();
-            }
+            string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
+            Logger.For(typeof(Shipment)).Info("结束");
+            return Cnn.Query<Shipment>(StrSQL).ToList<Shipment>();
         }
 
         public void DeductWH()
@@ -58,19 +50,19 @@ namespace OldNamwahSystem.BO
             WHHistory.ItemType = ItemType;
             WHHistory.RefNo = OrderNo;
             WHHistory.RefType = "SO";
-            WHHistory.Qty = MoveQty;
+            WHHistory.OKQty = MoveQty;
             WHHistory.VendDefectQty = 0;
             WHHistory.DefectQty = 0;
-            WHHistory.OK = "ok";
+            //WHHistory.OK = "ok";
             WHHistory.Supplier = Destination;
             WHHistory.Status = "Complete";
-            WHHistory.IO = "Output";
-            WHHistory.PostFromShipment();
+            WHHistory.IOType = WHIOType.Output;
+            WHHistory.Save();
 
             ChangeStatus("TSI");
             UpdateAllRecord();
         }
-        
+
         private void RecToExchange(ADODB.Record Rec)
         {
             Rec.Fields["nw:mo:no"].Value = OrderNo;
@@ -78,21 +70,21 @@ namespace OldNamwahSystem.BO
 
             if (Item != null)
                 Rec.Fields["nw:part:revision"].Value = Item.CustomerRevision;
-            
+
             Rec.Fields["nw:part:tmxrefno"].Value = CustomerItemNo;
             Rec.Fields["nw:material"].Value = Material;
             Rec.Fields["nw:parttype"].Value = ItemType;
             Rec.Fields["nw:partname"].Value = ItemName;
-            Rec.Fields["nw:strprice"].Value = OurPrice.ToString(); 
+            Rec.Fields["nw:strprice"].Value = OurPrice.ToString();
             Rec.Fields["nw:cpo:item:strprice"].Value = CustomerPrice.ToString();
             Rec.Fields["nw:mo:origin"].Value = Origin;
             Rec.Fields["nw:customer"].Value = Customer;
-            Rec.Fields["nw:mo:destination"].Value = Destination; 
+            Rec.Fields["nw:mo:destination"].Value = Destination;
             Rec.Fields["nw:mo:moveqty"].Value = int.Parse(MoveQty.ToString());
-            Rec.Fields["nw:mo:arrivedqty"].Value = int.Parse(ArrivedQty.ToString()); 
+            Rec.Fields["nw:mo:arrivedqty"].Value = int.Parse(ArrivedQty.ToString());
             Rec.Fields["nw:cpo:item:shipmethod"].Value = ShipMethod;
             //Rec.Fields.Append("nw:mo:movedate", ADODB.DataTypeEnum.adFileTime);
-            
+
             if (CompDate.Year > 2000)
                 Rec.Fields["nw:mo:compdate"].Value = CompDate;
 
@@ -104,7 +96,7 @@ namespace OldNamwahSystem.BO
             Rec.Fields["nw:mo:refno"].Value = RefNo;
             Rec.Fields["nw:mo:reftype"].Value = RefType;//  "CPO";
             Rec.Fields["nw:mo:sotype"].Value = SoType; //  "FQC";
-            Rec.Fields["nw:mo:status"].Value = OrderStatus; 
+            Rec.Fields["nw:mo:status"].Value = OrderStatus;
             Rec.Fields["nw:history"].Value = History;
         }
 
@@ -149,7 +141,7 @@ namespace OldNamwahSystem.BO
                 Logger.For(this).Error(string.Format("寄货单号{0}. 已装箱数{1}({2}+{3})不能大于寄货数量{4}",
                     OrderNo, SQty + ArrivedQty, ArrivedQty, SQty, MoveQty));
 
-                throw new Exception(string.Format("已装箱数{0}({1}+{2})不能大于寄货数量{3}", 
+                throw new Exception(string.Format("已装箱数{0}({1}+{2})不能大于寄货数量{3}",
                     SQty + ArrivedQty, ArrivedQty, SQty, MoveQty));
             }
 
@@ -171,7 +163,7 @@ namespace OldNamwahSystem.BO
 
             if (NewMoveQty < ArrivedQty)
                 throw new Exception(string.Format("更改数量{0}不能少于已装箱数{1}.", NewMoveQty, ArrivedQty));
-    
+
             AddHistory(string.Format("寄货数量由{0}改为{1}.", MoveQty, NewMoveQty));
             MoveQty = NewMoveQty;
 
@@ -191,7 +183,7 @@ namespace OldNamwahSystem.BO
 
             if (SOLine == null)
             {
-                Logger.For(this).Error(string.Format("寄货单号{0}, 产品编码{1}, 找不到销售单号{2}-{3}.", 
+                Logger.For(this).Error(string.Format("寄货单号{0}, 产品编码{1}, 找不到销售单号{2}-{3}.",
                     OrderNo, ItemNo, SalesOrderNo, SalesOrderIndex));
                 throw new Exception(string.Format("找不到此销售单号{0}-{1}"
                     , SalesOrderNo, SalesOrderIndex));
@@ -199,7 +191,7 @@ namespace OldNamwahSystem.BO
 
             SOLine.CnnMySQL = CnnMySQL;
             SOLine.AddShippedQty(SQty);
-            SOLine.UpdateAllRecord();
+            SOLine.Save();
         }
 
         public void ChangeStatus(string NewStatus)
@@ -237,7 +229,7 @@ namespace OldNamwahSystem.BO
                 ADODB.Connection Cnn = ServerHelper.ConnectExchange(SHIPMENTPATH);
                 ADODB.Record Rec = new ADODB.Record();
                 string StrSQL = string.Format("{0}{1}.eml", SHIPMENTPATH, OrderNo);
-                Rec.Open(StrSQL, Cnn, ADODB.ConnectModeEnum.adModeReadWrite, 
+                Rec.Open(StrSQL, Cnn, ADODB.ConnectModeEnum.adModeReadWrite,
                     ADODB.RecordCreateOptionsEnum.adFailIfNotExists,
                     ADODB.RecordOpenOptionsEnum.adOpenRecordUnspecified,
                         "Namwah", "ParaW0rld");
@@ -336,7 +328,7 @@ namespace OldNamwahSystem.BO
                         SalesOrderNo, SalesOrderIndex,
                         ShipMethod, SoType,
                         OrderStatus, LastModifiedDate.ToString("yyyy-MM-dd hh:mm:ss"),
-                        History.Replace("'", "''") , OrderNo);
+                        History.Replace("'", "''"), OrderNo);
 
             int AffectRecord = CnnMySQL.Execute(StrSQL);
 
@@ -389,44 +381,9 @@ namespace OldNamwahSystem.BO
         #region Fields
 
         // Fields...
-        private string _OrderStatus = "";
-        private string _SoType = "";
-        private string _ShipMethod = "";
-        private string _SalesOrderNo = "";
-        private int _SalesOrderIndex = 0;
-        private string _RefType = "";
-        private string _RefNo = "";
-        private string _PlatingInvoiceNo = "";
-        private DateTime _PlatingInvoiceDate = DateTime.MinValue;
-        private double _OurPrice = 0;
-        private string _Origin = "";
-        private string _OrderNo = "";
-        private DateTime _OrderDate = DateTime.MinValue;
-        private double _MoveQty = 0;
-        private DateTime _MoveDate = DateTime.MinValue;
-        private string _Material = "";
-        private DateTime _LastModifiedDate = DateTime.MinValue;
-        private string _ItemType = "";
+        public int? id { get; set; }
+
         private Item _Item;
-        private string _ItemRevision = "";
-        private string _ItemNo = "";
-        private string _ItemName = "";
-        private string _InvoiceNo = "";
-        private string _Destination = "";
-        private double _CustomerPrice = 0;
-        private string _CustomerItemNo = "";
-        private string _Customer = "";
-        private DateTime _CompDate = DateTime.MinValue;
-        private string _Carton = "";
-        private double _ArrivedQty = 0;
-
-        //private SalesOrderLine _SOLine;
-        //public SalesOrderLine SOLine
-        //{
-        //       get { return _SOLine; }
-        //       set { _SOLine = value; }
-        //}
-
         public Item Item
         {
             get
@@ -443,6 +400,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _ArrivedQty = 0;
         public double ArrivedQty
         {
             get
@@ -451,10 +409,11 @@ namespace OldNamwahSystem.BO
             }
             set
             {
-                _ArrivedQty  = value;
+                _ArrivedQty = value;
             }
         }
 
+        private string _Carton = "";
         public string Carton
         {
             get
@@ -474,6 +433,7 @@ namespace OldNamwahSystem.BO
             set { _History = value; }
         }
 
+        private DateTime _CompDate = DateTime.MinValue;
         public DateTime CompDate
         {
             get
@@ -486,6 +446,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Customer = "";
         public string Customer
         {
             get
@@ -498,6 +459,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _CustomerItemNo = "";
         public string CustomerItemNo
         {
             get
@@ -510,6 +472,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _CustomerPrice = 0;
         public double CustomerPrice
         {
             get
@@ -522,6 +485,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Destination = "";
         public string Destination
         {
             get
@@ -534,6 +498,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _InvoiceNo = "";
         public string InvoiceNo
         {
             get
@@ -546,6 +511,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemName = "";
         public string ItemName
         {
             get
@@ -558,6 +524,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemNo = "";
         public string ItemNo
         {
             get
@@ -570,6 +537,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemRevision = "";
         public string ItemRevision
         {
             get
@@ -582,6 +550,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemType = "";
         public string ItemType
         {
             get
@@ -594,6 +563,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _LastModifiedDate = DateTime.MinValue;
         public DateTime LastModifiedDate
         {
             get
@@ -606,6 +576,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Material = "";
         public string Material
         {
             get
@@ -618,6 +589,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _MoveDate = DateTime.MinValue;
         public DateTime MoveDate
         {
             get
@@ -630,6 +602,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _MoveQty = 0;
         public double MoveQty
         {
             get
@@ -642,6 +615,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _OrderDate = DateTime.MinValue;
         public DateTime OrderDate
         {
             get
@@ -654,6 +628,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _OrderNo = "";
         public string OrderNo
         {
             get
@@ -666,6 +641,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Origin = "";
         public string Origin
         {
             get
@@ -678,6 +654,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _OurPrice = 0;
         public double OurPrice
         {
             get
@@ -690,6 +667,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _PlatingInvoiceDate = DateTime.MinValue;
         public DateTime PlatingInvoiceDate
         {
             get
@@ -702,6 +680,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _PlatingInvoiceNo = "";
         public string PlatingInvoiceNo
         {
             get
@@ -714,6 +693,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _RefNo = "";
         public string RefNo
         {
             get
@@ -726,6 +706,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _RefType = "";
         public string RefType
         {
             get
@@ -738,6 +719,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private int _SalesOrderIndex = 0;
         public int SalesOrderIndex
         {
             get
@@ -750,6 +732,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _SalesOrderNo = "";
         public string SalesOrderNo
         {
             get
@@ -762,6 +745,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ShipMethod = "";
         public string ShipMethod
         {
             get
@@ -774,6 +758,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _SoType = "";
         public string SoType
         {
             get
@@ -786,6 +771,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _OrderStatus = "";
         public string OrderStatus
         {
             get

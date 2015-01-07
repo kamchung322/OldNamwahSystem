@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using OldNamwahSystem.Func;
 using Dapper;
 using MySql.Data.MySqlClient;
-using NamwahSystem.Model.BO;
+using NamwahSystem.Model.Func;
 
-namespace OldNamwahSystem.BO
+namespace NamwahSystem.Model.BO
 {
     public class SalesOrderLine
     {
@@ -59,7 +58,7 @@ namespace OldNamwahSystem.BO
                 double ShipQty = 0;
                 string Key = string.Format("{0}-{1}", SOLine.OrderNo, SOLine.OrderIndex);
 
-                if (SOLine.PromisedDate <= DateTime.Today.AddDays(21))
+                if (SOLine.PromisedDate <= DateTime.Today.AddDays(321) || SOLine.Priority > 10 )
                 {
 
                     if (RemainQty > SOLine.BalQty)
@@ -82,8 +81,8 @@ namespace OldNamwahSystem.BO
             return DictIssueQty;
         }
 
-        public static List<Shipment> CreateShipmentOrders(Dictionary<string, SalesOrderLine> SOLines, 
-                                                          Dictionary<string, double> DictIssueQty, 
+        public static List<Shipment> CreateShipmentOrders(Dictionary<string, SalesOrderLine> SOLines,
+                                                          Dictionary<string, double> DictIssueQty,
                                                           string RefNo)
         {
             List<Shipment> Shipments = new List<Shipment>();
@@ -115,7 +114,7 @@ namespace OldNamwahSystem.BO
                 {
                     string Key = string.Format("{0}-{1}", ShipOrder.SalesOrderNo, ShipOrder.SalesOrderIndex);
                     SalesOrderLine SOLine;
-                    
+
                     if (SOLines.ContainsKey(Key))
                     {
                         SOLine = SOLines[Key];
@@ -199,7 +198,7 @@ namespace OldNamwahSystem.BO
 
                         ShipOrder.InsertAllRecord();
                         AddHistory(string.Format("Shipped from FQC, {0} PCS, {1}", ShipQty, JSNo));
-                        UpdateAllRecord();
+                        Save();
                         TranMySQL.Commit();
                     }
                     catch (Exception ex)
@@ -210,7 +209,7 @@ namespace OldNamwahSystem.BO
                     }
                 }
             }
-            
+
             return ShipOrder;
         }
 
@@ -243,7 +242,7 @@ namespace OldNamwahSystem.BO
 
             if (BalQty == 0)
                 ChangeStatus("Complete");
-                
+
         }
 
         public void ChangeStatus(string NewStatus)
@@ -255,16 +254,16 @@ namespace OldNamwahSystem.BO
             OrderStatus = NewStatus;
         }
 
-        public void UpdateAllRecord()
+        public void Save()
         {
             if (Glob.IsDebugMode)
-                return ;
+                return;
 
-            //UpdateToExchange();
+            //SaveToExchange();
             SaveToMySQL();
         }
 
-        private void UpdateToExchange()
+        private void SaveToExchange()
         {
             try
             {
@@ -272,7 +271,7 @@ namespace OldNamwahSystem.BO
                 ADODB.Connection Cnn = ServerHelper.ConnectExchange(SOLINEPATH);
                 ADODB.Record Rec = new ADODB.Record();
 
-                string StrSQL = string.Format("{0}{1}_{2}.eml", SOLINEPATH, OrderNo, OrderIndex );
+                string StrSQL = string.Format("{0}{1}_{2}.eml", SOLINEPATH, OrderNo, OrderIndex);
 
                 Rec.Open(StrSQL, Cnn, ADODB.ConnectModeEnum.adModeReadWrite,
                     ADODB.RecordCreateOptionsEnum.adFailIfNotExists,
@@ -287,17 +286,6 @@ namespace OldNamwahSystem.BO
                 Logger.For(this).Error(string.Format("销售单{0}-{1} 不能储存.  原因 : {2}.", OrderNo, OrderIndex, ex.Message));
                 throw ex;
             }
-        }
-
-        private void RecToExchange(ADODB.Record Rec)
-        {
-            //Rec.Fields["nw:history"].Value = History;
-            //Rec.Fields["nw:cpo:item:status"].Value = OrderStatus;
-            //Rec.Fields["nw:cpo:item:priority"].Value = Priority;
-            //Rec.Fields["nw:cpo:item:prioritylist"].Value = PriorityList;
-            //Rec.Fields["nw:cpo:item:promiseddate"].Value = PromisedDate;
-            //Rec.Fields["nw:cpo:item:shipmentlist"].Value = PromisedDateList;
-            //Rec.Fields["nw:cpo:item:shippedqty"].Value = int.Parse(ShippedQty.ToString());
         }
 
         private void SaveToMySQL()
@@ -321,38 +309,24 @@ namespace OldNamwahSystem.BO
                 Logger.For(this).Error(string.Format("销售单 {0}-{1}.  原因 : 没有储存到数据库", OrderNo, OrderIndex));
         }
 
+        private void RecToExchange(ADODB.Record Rec)
+        {
+            //Rec.Fields["nw:history"].Value = History;
+            //Rec.Fields["nw:cpo:item:status"].Value = OrderStatus;
+            //Rec.Fields["nw:cpo:item:priority"].Value = Priority;
+            //Rec.Fields["nw:cpo:item:prioritylist"].Value = PriorityList;
+            //Rec.Fields["nw:cpo:item:promiseddate"].Value = PromisedDate;
+            //Rec.Fields["nw:cpo:item:shipmentlist"].Value = PromisedDateList;
+            //Rec.Fields["nw:cpo:item:shippedqty"].Value = int.Parse(ShippedQty.ToString());
+        }
+
         #region Fields
 
         // Fields...
-        private DateTime _LastModifiedDate = DateTime.MinValue;
-        private double _ShippedQty = 0;
-        private string _ShipMethod = "Air";
-        private string _Remark = "";
-        private string _PromisedDateList = "";
-        private DateTime _PromisedDate = DateTime.MinValue;
-        private string _PriorityList = "";
-        private int _Priority = 0;
-        private double _OurPrice = 0;
-        private string _OrderStatus = "";
-        private string _OrderNo = "";
-        private int _OrderIndex = 0;
-        private DateTime _OrderDate = DateTime.MinValue;
-        private double _NeedQty = 0;
-        private DateTime _NeedDate = DateTime.MinValue;
-        private string _Material = "";
-        private string _ItemType = "";
-        private string _ItemNo = "";
-        private string _ItemName = "";
-        private string _ItemDescription = "";
-        private string _ItemCategory = "";
-        private DateTime _InitNeedDate = DateTime.MinValue;
-        private bool _IgnorePlanning = false;
-        private double _CustomerPrice = 0;
-        private string _CustomerItemNo = "";
-        private string _Customer = "";
-        private int _OrderSubIndex = 0;
-        private string _History = "";
 
+        public int? id { get; set; }
+
+        private string _History = "";
         public string History
         {
             get
@@ -372,6 +346,7 @@ namespace OldNamwahSystem.BO
             set { _PendingShipQty = value; }
         }
 
+        private string _Customer = "";
         public string Customer
         {
             get
@@ -384,6 +359,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _CustomerItemNo = "";
         public string CustomerItemNo
         {
             get
@@ -396,6 +372,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _CustomerPrice = 0;
         public double CustomerPrice
         {
             get
@@ -408,6 +385,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private bool _IgnorePlanning = false;
         public bool IgnorePlanning
         {
             get
@@ -420,6 +398,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _InitNeedDate = DateTime.MinValue;
         public DateTime InitNeedDate
         {
             get
@@ -432,6 +411,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemCategory = "";
         public string ItemCategory
         {
             get
@@ -444,6 +424,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemDescription = "";
         public string ItemDescription
         {
             get
@@ -456,6 +437,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemName = "";
         public string ItemName
         {
             get
@@ -468,6 +450,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemNo = "";
         public string ItemNo
         {
             get
@@ -480,6 +463,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemType = "";
         public string ItemType
         {
             get
@@ -492,6 +476,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Material = "";
         public string Material
         {
             get
@@ -504,6 +489,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _NeedDate = DateTime.MinValue;
         public DateTime NeedDate
         {
             get
@@ -516,6 +502,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _NeedQty = 0;
         public double NeedQty
         {
             get
@@ -528,6 +515,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _OrderDate = DateTime.MinValue;
         public DateTime OrderDate
         {
             get
@@ -540,6 +528,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private int _OrderSubIndex = 0;
         public int OrderSubIndex
         {
             get
@@ -551,6 +540,8 @@ namespace OldNamwahSystem.BO
                 _OrderSubIndex = value;
             }
         }
+
+        private int _OrderIndex = 0;
         public int OrderIndex
         {
             get
@@ -563,6 +554,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _OrderNo = "";
         public string OrderNo
         {
             get
@@ -575,6 +567,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _OrderStatus = "";
         public string OrderStatus
         {
             get
@@ -586,7 +579,8 @@ namespace OldNamwahSystem.BO
                 _OrderStatus = value;
             }
         }
-
+        
+        private double _OurPrice = 0;
         public double OurPrice
         {
             get
@@ -599,6 +593,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private int _Priority = 0;
         public int Priority
         {
             get
@@ -611,6 +606,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _PriorityList = "";
         public string PriorityList
         {
             get
@@ -623,6 +619,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _PromisedDate = DateTime.MinValue;
         public DateTime PromisedDate
         {
             get
@@ -635,6 +632,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _PromisedDateList = "";
         public string PromisedDateList
         {
             get
@@ -647,6 +645,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Remark = "";
         public string Remark
         {
             get
@@ -659,6 +658,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ShipMethod = "Air";
         public string ShipMethod
         {
             get
@@ -672,6 +672,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _ShippedQty = 0;
         public double ShippedQty
         {
             get
@@ -692,6 +693,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _LastModifiedDate = DateTime.MinValue;
         public DateTime LastModifiedDate
         {
             get
@@ -703,6 +705,7 @@ namespace OldNamwahSystem.BO
                 _LastModifiedDate = value;
             }
         }
+        
         #endregion
 
     }

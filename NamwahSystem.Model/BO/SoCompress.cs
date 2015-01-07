@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using NamwahSystem.Model.BO;
 
-namespace OldNamwahSystem.BO
+namespace NamwahSystem.Model.BO
 {
-    class SoCompress
+    public class SoCompress
     {
-
         public static BindingList<SoCompress> CompressSO(List<Shipment> Shipments)
         {
             Dictionary<string, SoCompress> DictSoCompress = new Dictionary<string, SoCompress>();
@@ -158,28 +154,10 @@ namespace OldNamwahSystem.BO
 
         #region field
 
-        private string _Revision = "";
-        private string _InspectSpec = "";
-        private string _InspectStatus = "NRI";
         public string JSNo = "";
-
-        private string _Inspector = "";
-        private string _IRNo = "";
-        private Item _Item;
-        private string _SalesOrderNo;
-        private string _ShipMethod;
-        private Shipment _Shipment;
-        private double _MaxQty = 0;
-        private double _ShipQty = 0;
-        private double _Box5 = 0;
-        private double _Box4 = 0;
-        private double _Box3 = 0;
-        private double _Box2 = 0;
-        private double _Box1 = 0;
-        private double _BoxQty = 0;
-
         public double TotalBox = 5;
 
+        private Shipment _Shipment;
         public Shipment Shipment
         {
             get
@@ -192,6 +170,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private Item _Item;
         public Item Item
         {
             get
@@ -207,6 +186,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ShipMethod;
         public string ShipMethod
         {
             get
@@ -219,6 +199,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _SalesOrderNo;
         public string SalesOrderNo
         {
             get
@@ -231,6 +212,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _IRNo = "";
         public string IRNo
         {
             get
@@ -243,6 +225,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Inspector = "";
         public string Inspector
         {
             get
@@ -255,6 +238,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _InspectStatus = "NRI";
         public string InspectStatus
         {
             get
@@ -267,6 +251,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _InspectSpec = "";
         public string InspectSpec
         {
             get
@@ -279,6 +264,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Revision = "";
         public string Revision
         {
             get
@@ -291,6 +277,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _MaxQty = 0;
         public double MaxQty
         {
             get
@@ -303,6 +290,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _ShipQty = 0;
         public double ShipQty
         {
             get
@@ -315,6 +303,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _BoxQty = 0;
         public double BoxQty
         {
             get
@@ -327,6 +316,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _Box1 = 0;
         public double Box1
         {
             get
@@ -339,6 +329,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _Box2 = 0;
         public double Box2
         {
             get
@@ -351,6 +342,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _Box3 = 0;
         public double Box3
         {
             get
@@ -363,6 +355,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _Box4 = 0;
         public double Box4
         {
             get
@@ -375,6 +368,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _Box5 = 0;
         public double Box5
         {
             get
@@ -387,6 +381,5 @@ namespace OldNamwahSystem.BO
             }
         }
         #endregion
-
     }
 }

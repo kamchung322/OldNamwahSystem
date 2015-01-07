@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using OldNamwahSystem.BO;
+using NamwahSystem.Model.BO;
 
 namespace OldNamwahSystem.Label
 {

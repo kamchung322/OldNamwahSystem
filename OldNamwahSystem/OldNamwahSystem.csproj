@@ -25,7 +25,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>16</ApplicationRevision>
+    <ApplicationRevision>22</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -68,7 +68,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper">
-      <HintPath>..\packages\Dapper.1.25\lib\net40\Dapper.dll</HintPath>
+      <HintPath>..\packages\Dapper.1.27\lib\net40\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.BonusSkins.v13.2" />
     <Reference Include="DevExpress.Data.v13.2" />
@@ -102,13 +102,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BO\Item.cs" />
-    <Compile Include="BO\JobSchedule.cs" />
-    <Compile Include="BO\SalesOrderLine.cs" />
-    <Compile Include="BO\Shipment.cs" />
-    <Compile Include="BO\SoCompress.cs" />
-    <Compile Include="BO\WHHistory.cs" />
-    <Compile Include="BO\WHTotal.cs" />
     <Compile Include="frmDeductFromWH.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -163,11 +156,6 @@
     <Compile Include="frmTest.Designer.cs">
       <DependentUpon>frmTest.cs</DependentUpon>
     </Compile>
-    <Compile Include="Func\ExchangeHelper.cs" />
-    <Compile Include="Func\Glob.cs" />
-    <Compile Include="Func\Logger.cs" />
-    <Compile Include="Func\ServerHelper.cs" />
-    <Compile Include="Func\SplitOrder.cs" />
     <Compile Include="Label\BoxLabel.cs" />
     <Compile Include="Label\IRLabel.cs" />
     <Compile Include="Program.cs" />
@@ -514,6 +502,9 @@
       <Project>{86b47f78-e02a-4faf-9edf-1328b1f71571}</Project>
       <Name>NamwahSystem.Model</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Func\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

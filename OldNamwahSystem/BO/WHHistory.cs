@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OldNamwahSystem.Func;
 using log4net;
+using NamwahSystem.Model.BO;
 
 namespace OldNamwahSystem.BO
 {

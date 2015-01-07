@@ -5,8 +5,8 @@ using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using Excel = Microsoft.Office.Interop.Excel;
-using OldNamwahSystem.BO;
-using OldNamwahSystem.Func;
+using NamwahSystem.Model.BO;
+using NamwahSystem.Model.Func;
 using Microsoft.VisualBasic;
 using MySql.Data.MySqlClient;
 
@@ -30,8 +30,12 @@ namespace OldNamwahSystem
 
         private void LoadShipment()
         {
-            gridShipment.DataSource = Shipment.LoadListByMySQL("WHERE (OrderStatus = 'Ready' OR OrderStatus = 'TSI' OR OrderStatus = 'Waiting' OR OrderStatus = 'Active') ", "Order By OrderNo");
-            txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
+            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
+            {
+                gridShipment.DataSource = Shipment.LoadListByMySQL(Cnn , 
+                    "WHERE (OrderStatus = 'Ready' OR OrderStatus = 'TSI' OR OrderStatus = 'Waiting' OR OrderStatus = 'Active') ", "Order By OrderNo");
+                txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
+            }
         }
 
         private void ShowError(string ErrMsg)
@@ -51,13 +55,13 @@ namespace OldNamwahSystem
         {
             double TmpDeductQty = DeductQty;
             double SQty = 0;
-            
-            List<Shipment> Shipments = Shipment.LoadListByMySQL(
-                        string.Format("WHERE (SalesOrderNo = '{0}' AND CustomerItemNo = '{1}' AND OrderStatus = 'Ready' )", SalesOrderNo, ItemNo),
-                        "ORDER BY OrderDate ASC");
 
             using (MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL())
             {
+                List<Shipment> Shipments = Shipment.LoadListByMySQL(CnnMySQL,
+                    string.Format("WHERE (SalesOrderNo = '{0}' AND CustomerItemNo = '{1}' AND OrderStatus = 'Ready' )", SalesOrderNo, ItemNo),
+                    "ORDER BY OrderDate ASC");
+
                 foreach (Shipment ShipOrder in Shipments)
                 {
                     using (MySqlTransaction TranMySQL = CnnMySQL.BeginTransaction())
@@ -155,7 +159,7 @@ namespace OldNamwahSystem
                 {
                     if (Ship.ShipMethod != "Air")
                     {
-                        Shipment ShipUpdate = Shipment.LoadMySQL(Ship.OrderNo);
+                        Shipment ShipUpdate = Shipment.LoadMySQL(CnnMySQL, Ship.OrderNo);
                         ShipUpdate.CnnMySQL = CnnMySQL;
                         ShipUpdate.ShipMethod = "Air";
                         ShipUpdate.UpdateAllRecord();
@@ -177,7 +181,7 @@ namespace OldNamwahSystem
                 {
                     if (Ship.ShipMethod != "Sea")
                     {
-                        Shipment ShipUpdate = Shipment.LoadMySQL(Ship.OrderNo);
+                        Shipment ShipUpdate = Shipment.LoadMySQL(CnnMySQL, Ship.OrderNo);
                         ShipUpdate.CnnMySQL = CnnMySQL;
                         ShipUpdate.ShipMethod = "Sea";
                         ShipUpdate.UpdateAllRecord();
@@ -208,24 +212,27 @@ namespace OldNamwahSystem
             {
                 try
                 {
-                    Shipment = Shipment.LoadMySQL(Shipment.OrderNo);
-
-                    if (NewQty > Shipment.MoveQty)
+                    using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
                     {
-                        XtraMessageBox.Show(string.Format("单号{0}不能更改寄货数量.  \n原因 : 更改数量{0}不能大于原数量{1}.",
-                                           Shipment.OrderNo, NewQty, Shipment.MoveQty));
-                        return;
-                    }
+                        Shipment = Shipment.LoadMySQL(Cnn, Shipment.OrderNo);
 
-                    if (NewQty < Shipment.ArrivedQty)
-                    {
-                        XtraMessageBox.Show(string.Format("单号{0}不能更改寄货数量.  \n原因 : 更改数量{0}不能少于已装箱数{1}.",
-                                           Shipment.OrderNo, NewQty, Shipment.ArrivedQty));
-                        return;
-                    }
+                        if (NewQty > Shipment.MoveQty)
+                        {
+                            XtraMessageBox.Show(string.Format("单号{0}不能更改寄货数量.  \n原因 : 更改数量{0}不能大于原数量{1}.",
+                                               Shipment.OrderNo, NewQty, Shipment.MoveQty));
+                            return;
+                        }
 
-                    Shipment.ChangeMoveQty(NewQty);
-                    Shipment.UpdateAllRecord();
+                        if (NewQty < Shipment.ArrivedQty)
+                        {
+                            XtraMessageBox.Show(string.Format("单号{0}不能更改寄货数量.  \n原因 : 更改数量{0}不能少于已装箱数{1}.",
+                                               Shipment.OrderNo, NewQty, Shipment.ArrivedQty));
+                            return;
+                        }
+
+                        Shipment.ChangeMoveQty(NewQty);
+                        Shipment.UpdateAllRecord();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -247,7 +254,7 @@ namespace OldNamwahSystem
                 {
                     if (Ship.OrderStatus == "TSI")
                     {
-                        Shipment ShipUpdate = Shipment.LoadMySQL(Ship.OrderNo);
+                        Shipment ShipUpdate = Shipment.LoadMySQL(CnnMySQL, Ship.OrderNo);
                         ShipUpdate.CnnMySQL = CnnMySQL;
                         ShipUpdate.ChangeStatus("Ready");
                         ShipUpdate.UpdateAllRecord();
@@ -312,7 +319,7 @@ namespace OldNamwahSystem
                 {
                     foreach (Shipment S in Shipments)
                     {
-                        Shipment Ship = Shipment.LoadMySQL(S.OrderNo);
+                        Shipment Ship = Shipment.LoadMySQL(CnnMySQL, S.OrderNo);
                         Ship.CnnMySQL = CnnMySQL;
                         Ship.AddShippedQty(Ship.MoveQty - Ship.ArrivedQty);
                         Ship.AddCartonNo(CartonNo);

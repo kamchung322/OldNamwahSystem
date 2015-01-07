@@ -1,31 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OldNamwahSystem.Func;
-using NamwahSystem.Model.BO;
+using System.Text;
 
-namespace OldNamwahSystem.BO
+using NamwahSystem.Model.Func;
+
+namespace NamwahSystem.Model.BO
 {
-    class JobSchedule
+    public class ProdOrder : BaseBusinessObject
     {
-        public const string JSPATH = "http://nwszmail/public/namwah/WorkOrders/SZProduction/JobSchedule/";
+        private const string JSPATH = "http://nwszmail/public/namwah/WorkOrders/SZProduction/JobSchedule/";
 
-        public static JobSchedule LoadExchange(string StrJSNo)
+        public static ProdOrder LoadExchange(string StrJSNo)
         {
             try
             {
-                Logger.For(typeof(JobSchedule)).Info(string.Format("开始.  单号 : {0}.", StrJSNo));
+                Logger.For(typeof(ProdOrder)).Info(string.Format("开始.  单号 : {0}.", StrJSNo));
                 ADODB.Connection Cnn = ServerHelper.ConnectExchange(JSPATH);
                 ADODB.Record Rec = new ADODB.Record();
                 Rec.Open(string.Format("{0}{1}.eml", JSPATH, StrJSNo), Cnn, ADODB.ConnectModeEnum.adModeReadWrite, ADODB.RecordCreateOptionsEnum.adFailIfNotExists, ADODB.RecordOpenOptionsEnum.adOpenRecordUnspecified, "namwah", "ParaW0rld");
-                JobSchedule JS = new JobSchedule();
+                ProdOrder JS = new ProdOrder();
                 JS.InitFromRec(Rec);
-                Logger.For(typeof(JobSchedule)).Info(string.Format("结束.  单号 : {0}.", StrJSNo));
+                Logger.For(typeof(ProdOrder)).Info(string.Format("结束.  单号 : {0}.", StrJSNo));
                 return JS;
             }
             catch (Exception ex)
             {
-                Logger.For(typeof(JobSchedule)).Error(string.Format("单号 : {0}.  原因 : {1}", StrJSNo, ex.Message));
+                Logger.For(typeof(ProdOrder)).Error(string.Format("单号 : {0}.  原因 : {1}", StrJSNo, ex.Message));
                 throw ex;
             }
         }
@@ -50,7 +51,7 @@ namespace OldNamwahSystem.BO
             Item = Item.Load(ItemNo);
         }
 
-        public void UpdateFQC()
+        public void UpdateToExchange()
         {
             if (Glob.IsDebugMode)
                 return;
@@ -85,23 +86,7 @@ namespace OldNamwahSystem.BO
 
         #region Field
 
-        private string _ActiveLocation;
         private Item _Item;
-        private string _ItemType = "";
-        private string _ItemNo = "";
-        private string _ItemName = "";
-        private string _Material = "";
-        private string _OrderStatus = "";
-        private string _OrderNo = "";
-        private double _NeedQty = 0;
-        private DateTime _NeedDate = DateTime.MinValue;
-        private string _Location = "";
-        private string _IrNo = "";
-        private double _ActiveQty = 0;
-        private string _FQCInspector = "";
-        private DateTime _FQCInspectionDate = DateTime.MinValue;
-        private string _CellLine = "";
-
         public Item Item
         {
             get
@@ -114,6 +99,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ActiveLocation;
         public string ActiveLocation
         {
             get
@@ -126,6 +112,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _CellLine = "";
         public string CellLine
         {
             get
@@ -138,6 +125,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _FQCInspectionDate = DateTime.MinValue;
         public DateTime FQCInspectionDate
         {
             get
@@ -150,6 +138,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _FQCInspector = "";
         public string FQCInspector
         {
             get
@@ -162,6 +151,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _ActiveQty = 0;
         public double ActiveQty
         {
             get
@@ -174,6 +164,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _IrNo = "";
         public string IrNo
         {
             get
@@ -186,6 +177,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Location = "";
         public string Location
         {
             get
@@ -198,6 +190,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private DateTime _NeedDate = DateTime.MinValue;
         public DateTime NeedDate
         {
             get
@@ -210,6 +203,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private double _NeedQty = 0;
         public double NeedQty
         {
             get
@@ -222,6 +216,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _OrderNo = "";
         public string OrderNo
         {
             get
@@ -234,6 +229,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _OrderStatus = "";
         public string OrderStatus
         {
             get
@@ -246,6 +242,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _Material = "";
         public string Material
         {
             get
@@ -258,6 +255,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemName = "";
         public string ItemName
         {
             get
@@ -270,6 +268,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemNo = "";
         public string ItemNo
         {
             get
@@ -282,6 +281,7 @@ namespace OldNamwahSystem.BO
             }
         }
 
+        private string _ItemType = "";
         public string ItemType
         {
             get
@@ -294,6 +294,6 @@ namespace OldNamwahSystem.BO
             }
         }
 
-#endregion
+        #endregion
     }
 }

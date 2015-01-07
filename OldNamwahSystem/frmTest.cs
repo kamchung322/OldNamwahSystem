@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
-using OldNamwahSystem.Func;
-using OldNamwahSystem.BO;
+using NamwahSystem.Model.Func;
+using NamwahSystem.Model.BO;
+using MySql.Data.MySqlClient;
 
 namespace OldNamwahSystem
 {
@@ -38,10 +39,11 @@ namespace OldNamwahSystem
 
         private void btnShipment_Click(object sender, EventArgs e)
         {
-            Shipment Shipment = Shipment.LoadMySQL("XS1940368");
-
-            Shipment.InsertAllRecord();
-
+            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
+            {
+                Shipment Shipment = Shipment.LoadMySQL(Cnn, "XS1940368");
+                Shipment.InsertAllRecord();
+            }
         }
 
         private void btnTestStringSplit_Click(object sender, EventArgs e)
@@ -71,19 +73,19 @@ namespace OldNamwahSystem
 
         private void btnSOLines_Click(object sender, EventArgs e)
         {
-            List<SalesOrderLine> SOLines = SalesOrderLine.LoadListMySQL("WHERE OrderNo = '5133139' AND OrderIndex = 37 ", "");
-            MySql.Data.MySqlClient.MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL();
-            SOLines[0].CnnMySQL = CnnMySQL;
+            List<SalesOrderLine> SOLines = SalesOrderLine.LoadListMySQL("WHERE ItemNo = '921370306' AND  OrderStatus = 'Waiting' ", "");
+            MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL();
+            //SOLines[0].CnnMySQL = CnnMySQL;
 
-            SOLines[0].UpdateAllRecord();
+            //SOLines[0].UpdateAllRecord();
             
-            //SOLines = SplitOrder.SplitSOLineByDateAndPriority(SOLines);
-            //SOLines = SplitOrder.SortSOLines(SOLines);
+            //SOLines = SplitOrder.SplitSOLineByPromisedDateAndPriority(SOLines);
+            SOLines = SplitOrder.SortSOLinesByNeedDateAndPriority(SOLines);
 
-            //foreach(SalesOrderLine SOLine in SOLines)
-            //{
-            //    System.Diagnostics.Debug.Print(string.Format("Date : {0}.  Priority : {1}", SOLine.PromisedDate, SOLine.Priority));
-            //}
+            foreach(SalesOrderLine SOLine in SOLines)
+            {
+                System.Diagnostics.Debug.Print(string.Format("Date : {0}.  BalQty : {1},  Priority : {2}", SOLine.NeedDate , SOLine.BalQty,  SOLine.Priority));
+            }
         }
 
         private void btnStringTest_Click(object sender, EventArgs e)
@@ -104,5 +106,77 @@ namespace OldNamwahSystem
             MessageBox.Show(string.Format("{0}", string.IsNullOrEmpty(Test)));
 
         }
+
+        private void btnEnum_Click(object sender, EventArgs e)
+        {
+            foreach(string Name in Enum.GetNames(typeof(NamwahSystem.Model.Func.WHName)))
+            {
+                MessageBox.Show(Name);
+            }
+        }
+
+        private void btnTestFunction_Click(object sender, EventArgs e)
+        {
+            float Qty1 = 100, Qty2 = 200, Qty3 = 0;
+
+            Qty3 = AssignSmallQty(ref Qty1, ref Qty2);
+
+            MessageBox.Show(string.Format("Qty1 : {0}, Qty2 : {1}, Qty3 : {2},", Qty1, Qty2, Qty3));
+
+        }
+
+        private float AssignSmallQty(ref float Qty1, ref float Qty2)
+        {
+            float TmpSmallQty = 0;
+
+            if (Qty1 > Qty2)
+                TmpSmallQty = Qty2;
+            else
+                TmpSmallQty = Qty1;
+
+            Qty1 = Qty1 - TmpSmallQty;
+            Qty2 = Qty2 - TmpSmallQty;
+            return TmpSmallQty;
+        }
+
+        private void btnWHHistory_Click(object sender, EventArgs e)
+        {
+            using (MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL())
+            {
+                using (MySqlTransaction TranMySQL = CnnMySQL.BeginTransaction())
+                {
+                    try
+                    {
+                        WHIOType IOType = WHIOType.Input;
+                        for (int i = 1; i < 1000; i++)
+                        {
+                            WHHistory WHHistory = new WHHistory();
+                            WHHistory.TranMySQL = TranMySQL;
+                            WHHistory.ItemNo = "01TX0015";
+                            WHHistory.IOType = IOType;
+                            WHHistory.OKQty = 111;
+                            WHHistory.CreatedBy = "Kenneth";
+                            WHHistory.CreatedDate = DateTime.Now;
+                            WHHistory.CnnMySQL = CnnMySQL;
+                            WHHistory.Save();
+
+                            if (IOType == WHIOType.Input)
+                                IOType = WHIOType.Output;
+                            else
+                                IOType = WHIOType.Input;
+
+                        }
+                        TranMySQL.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                        TranMySQL.Rollback();
+                    }
+                }
+                MessageBox.Show("OK");
+            }
+        }
+
     }
 }

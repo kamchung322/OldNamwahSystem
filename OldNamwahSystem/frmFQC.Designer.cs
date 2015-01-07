@@ -30,6 +30,7 @@
         {
             this.splitContainerControl1 = new DevExpress.XtraEditors.SplitContainerControl();
             this.layoutControl1 = new DevExpress.XtraLayout.LayoutControl();
+            this.btnPrintTSICheckingLabel = new DevExpress.XtraEditors.SimpleButton();
             this.btnPrintIRLabel = new DevExpress.XtraEditors.SimpleButton();
             this.txtIRLabelQty = new DevExpress.XtraEditors.TextEdit();
             this.btnCancel = new DevExpress.XtraEditors.SimpleButton();
@@ -65,12 +66,13 @@
             this.layoutControlItem10 = new DevExpress.XtraLayout.LayoutControlItem();
             this.layoutControlItem12 = new DevExpress.XtraLayout.LayoutControlItem();
             this.layoutControlItem13 = new DevExpress.XtraLayout.LayoutControlItem();
-            this.layoutControlItem15 = new DevExpress.XtraLayout.LayoutControlItem();
-            this.layoutControlItem16 = new DevExpress.XtraLayout.LayoutControlItem();
-            this.layoutControlItem17 = new DevExpress.XtraLayout.LayoutControlItem();
-            this.layoutControlItem18 = new DevExpress.XtraLayout.LayoutControlItem();
-            this.layoutControlItem19 = new DevExpress.XtraLayout.LayoutControlItem();
             this.layoutControlItem20 = new DevExpress.XtraLayout.LayoutControlItem();
+            this.layoutControlItem19 = new DevExpress.XtraLayout.LayoutControlItem();
+            this.layoutControlItem21 = new DevExpress.XtraLayout.LayoutControlItem();
+            this.layoutControlItem15 = new DevExpress.XtraLayout.LayoutControlItem();
+            this.layoutControlItem17 = new DevExpress.XtraLayout.LayoutControlItem();
+            this.layoutControlItem16 = new DevExpress.XtraLayout.LayoutControlItem();
+            this.layoutControlItem18 = new DevExpress.XtraLayout.LayoutControlItem();
             this.gridShipList = new DevExpress.XtraGrid.GridControl();
             this.gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.colPoNo = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -81,8 +83,8 @@
             this.colBox3Qty = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colBox4Qty = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colBox5Qty = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.btnPrintTSICheckingLabel = new DevExpress.XtraEditors.SimpleButton();
-            this.layoutControlItem21 = new DevExpress.XtraLayout.LayoutControlItem();
+            this.chkToSample = new DevExpress.XtraEditors.CheckEdit();
+            this.layoutControlItem22 = new DevExpress.XtraLayout.LayoutControlItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             this.splitContainerControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControl1)).BeginInit();
@@ -116,15 +118,17 @@
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem10)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem12)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem13)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem15)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem16)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem17)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem18)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem19)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem20)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem19)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem21)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem15)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem17)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem16)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem18)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridShipList)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem21)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkToSample.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem22)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainerControl1
@@ -145,6 +149,7 @@
             // layoutControl1
             // 
             this.layoutControl1.AllowCustomizationMenu = false;
+            this.layoutControl1.Controls.Add(this.chkToSample);
             this.layoutControl1.Controls.Add(this.btnPrintTSICheckingLabel);
             this.layoutControl1.Controls.Add(this.btnPrintIRLabel);
             this.layoutControl1.Controls.Add(this.txtIRLabelQty);
@@ -176,6 +181,17 @@
             this.layoutControl1.TabIndex = 0;
             this.layoutControl1.Text = "layoutControl1";
             // 
+            // btnPrintTSICheckingLabel
+            // 
+            this.btnPrintTSICheckingLabel.Enabled = false;
+            this.btnPrintTSICheckingLabel.Location = new System.Drawing.Point(530, 134);
+            this.btnPrintTSICheckingLabel.Name = "btnPrintTSICheckingLabel";
+            this.btnPrintTSICheckingLabel.Size = new System.Drawing.Size(175, 22);
+            this.btnPrintTSICheckingLabel.StyleController = this.layoutControl1;
+            this.btnPrintTSICheckingLabel.TabIndex = 18;
+            this.btnPrintTSICheckingLabel.Text = "打印TSI检查标签";
+            this.btnPrintTSICheckingLabel.Click += new System.EventHandler(this.btnPrintTSICheckingLabel_Click);
+            // 
             // btnPrintIRLabel
             // 
             this.btnPrintIRLabel.Location = new System.Drawing.Point(352, 134);
@@ -188,9 +204,9 @@
             // 
             // txtIRLabelQty
             // 
-            this.txtIRLabelQty.Location = new System.Drawing.Point(244, 134);
+            this.txtIRLabelQty.Location = new System.Drawing.Point(245, 134);
             this.txtIRLabelQty.Name = "txtIRLabelQty";
-            this.txtIRLabelQty.Size = new System.Drawing.Size(104, 20);
+            this.txtIRLabelQty.Size = new System.Drawing.Size(103, 20);
             this.txtIRLabelQty.StyleController = this.layoutControl1;
             this.txtIRLabelQty.TabIndex = 12;
             // 
@@ -206,9 +222,9 @@
             // 
             // btnPrintBoxLabel
             // 
-            this.btnPrintBoxLabel.Location = new System.Drawing.Point(182, 158);
+            this.btnPrintBoxLabel.Location = new System.Drawing.Point(183, 158);
             this.btnPrintBoxLabel.Name = "btnPrintBoxLabel";
-            this.btnPrintBoxLabel.Size = new System.Drawing.Size(166, 22);
+            this.btnPrintBoxLabel.Size = new System.Drawing.Size(165, 22);
             this.btnPrintBoxLabel.StyleController = this.layoutControl1;
             this.btnPrintBoxLabel.TabIndex = 15;
             this.btnPrintBoxLabel.Text = "打印大标签";
@@ -228,7 +244,7 @@
             // 
             this.btnInputResult.Location = new System.Drawing.Point(12, 157);
             this.btnInputResult.Name = "btnInputResult";
-            this.btnInputResult.Size = new System.Drawing.Size(166, 22);
+            this.btnInputResult.Size = new System.Drawing.Size(167, 22);
             this.btnInputResult.StyleController = this.layoutControl1;
             this.btnInputResult.TabIndex = 14;
             this.btnInputResult.Text = "输入结果";
@@ -277,7 +293,7 @@
             this.chkAllInputWH.Location = new System.Drawing.Point(12, 134);
             this.chkAllInputWH.Name = "chkAllInputWH";
             this.chkAllInputWH.Properties.Caption = "全部存仓";
-            this.chkAllInputWH.Size = new System.Drawing.Size(166, 19);
+            this.chkAllInputWH.Size = new System.Drawing.Size(81, 19);
             this.chkAllInputWH.StyleController = this.layoutControl1;
             this.chkAllInputWH.TabIndex = 11;
             // 
@@ -411,7 +427,8 @@
             this.layoutControlItem15,
             this.layoutControlItem17,
             this.layoutControlItem16,
-            this.layoutControlItem18});
+            this.layoutControlItem18,
+            this.layoutControlItem22});
             this.layoutControlGroup1.Location = new System.Drawing.Point(0, 0);
             this.layoutControlGroup1.Name = "layoutControlGroup1";
             this.layoutControlGroup1.Size = new System.Drawing.Size(717, 203);
@@ -504,7 +521,7 @@
             this.layoutControlItem11.CustomizationFormText = "layoutControlItem11";
             this.layoutControlItem11.Location = new System.Drawing.Point(0, 122);
             this.layoutControlItem11.Name = "layoutControlItem11";
-            this.layoutControlItem11.Size = new System.Drawing.Size(170, 23);
+            this.layoutControlItem11.Size = new System.Drawing.Size(85, 23);
             this.layoutControlItem11.Text = "layoutControlItem11";
             this.layoutControlItem11.TextSize = new System.Drawing.Size(0, 0);
             this.layoutControlItem11.TextToControlDistance = 0;
@@ -562,17 +579,63 @@
             this.layoutControlItem13.Text = "检查状态";
             this.layoutControlItem13.TextSize = new System.Drawing.Size(59, 14);
             // 
+            // layoutControlItem20
+            // 
+            this.layoutControlItem20.Control = this.btnPrintIRLabel;
+            this.layoutControlItem20.CustomizationFormText = "layoutControlItem20";
+            this.layoutControlItem20.Location = new System.Drawing.Point(340, 122);
+            this.layoutControlItem20.Name = "layoutControlItem20";
+            this.layoutControlItem20.Size = new System.Drawing.Size(178, 26);
+            this.layoutControlItem20.Text = "layoutControlItem20";
+            this.layoutControlItem20.TextSize = new System.Drawing.Size(0, 0);
+            this.layoutControlItem20.TextToControlDistance = 0;
+            this.layoutControlItem20.TextVisible = false;
+            // 
+            // layoutControlItem19
+            // 
+            this.layoutControlItem19.Control = this.txtIRLabelQty;
+            this.layoutControlItem19.CustomizationFormText = "IR标签数量";
+            this.layoutControlItem19.Location = new System.Drawing.Point(171, 122);
+            this.layoutControlItem19.Name = "layoutControlItem19";
+            this.layoutControlItem19.Size = new System.Drawing.Size(169, 24);
+            this.layoutControlItem19.Text = "IR标签数量";
+            this.layoutControlItem19.TextSize = new System.Drawing.Size(59, 14);
+            // 
+            // layoutControlItem21
+            // 
+            this.layoutControlItem21.Control = this.btnPrintTSICheckingLabel;
+            this.layoutControlItem21.CustomizationFormText = "layoutControlItem21";
+            this.layoutControlItem21.Location = new System.Drawing.Point(518, 122);
+            this.layoutControlItem21.Name = "layoutControlItem21";
+            this.layoutControlItem21.Size = new System.Drawing.Size(179, 26);
+            this.layoutControlItem21.Text = "layoutControlItem21";
+            this.layoutControlItem21.TextSize = new System.Drawing.Size(0, 0);
+            this.layoutControlItem21.TextToControlDistance = 0;
+            this.layoutControlItem21.TextVisible = false;
+            // 
             // layoutControlItem15
             // 
             this.layoutControlItem15.Control = this.btnInputResult;
             this.layoutControlItem15.CustomizationFormText = "layoutControlItem15";
             this.layoutControlItem15.Location = new System.Drawing.Point(0, 145);
             this.layoutControlItem15.Name = "layoutControlItem15";
-            this.layoutControlItem15.Size = new System.Drawing.Size(170, 38);
+            this.layoutControlItem15.Size = new System.Drawing.Size(171, 38);
             this.layoutControlItem15.Text = "layoutControlItem15";
             this.layoutControlItem15.TextSize = new System.Drawing.Size(0, 0);
             this.layoutControlItem15.TextToControlDistance = 0;
             this.layoutControlItem15.TextVisible = false;
+            // 
+            // layoutControlItem17
+            // 
+            this.layoutControlItem17.Control = this.btnPrintBoxLabel;
+            this.layoutControlItem17.CustomizationFormText = "layoutControlItem17";
+            this.layoutControlItem17.Location = new System.Drawing.Point(171, 146);
+            this.layoutControlItem17.Name = "layoutControlItem17";
+            this.layoutControlItem17.Size = new System.Drawing.Size(169, 37);
+            this.layoutControlItem17.Text = "layoutControlItem17";
+            this.layoutControlItem17.TextSize = new System.Drawing.Size(0, 0);
+            this.layoutControlItem17.TextToControlDistance = 0;
+            this.layoutControlItem17.TextVisible = false;
             // 
             // layoutControlItem16
             // 
@@ -586,18 +649,6 @@
             this.layoutControlItem16.TextToControlDistance = 0;
             this.layoutControlItem16.TextVisible = false;
             // 
-            // layoutControlItem17
-            // 
-            this.layoutControlItem17.Control = this.btnPrintBoxLabel;
-            this.layoutControlItem17.CustomizationFormText = "layoutControlItem17";
-            this.layoutControlItem17.Location = new System.Drawing.Point(170, 146);
-            this.layoutControlItem17.Name = "layoutControlItem17";
-            this.layoutControlItem17.Size = new System.Drawing.Size(170, 37);
-            this.layoutControlItem17.Text = "layoutControlItem17";
-            this.layoutControlItem17.TextSize = new System.Drawing.Size(0, 0);
-            this.layoutControlItem17.TextToControlDistance = 0;
-            this.layoutControlItem17.TextVisible = false;
-            // 
             // layoutControlItem18
             // 
             this.layoutControlItem18.Control = this.btnCancel;
@@ -609,28 +660,6 @@
             this.layoutControlItem18.TextSize = new System.Drawing.Size(0, 0);
             this.layoutControlItem18.TextToControlDistance = 0;
             this.layoutControlItem18.TextVisible = false;
-            // 
-            // layoutControlItem19
-            // 
-            this.layoutControlItem19.Control = this.txtIRLabelQty;
-            this.layoutControlItem19.CustomizationFormText = "IR标签数量";
-            this.layoutControlItem19.Location = new System.Drawing.Point(170, 122);
-            this.layoutControlItem19.Name = "layoutControlItem19";
-            this.layoutControlItem19.Size = new System.Drawing.Size(170, 24);
-            this.layoutControlItem19.Text = "IR标签数量";
-            this.layoutControlItem19.TextSize = new System.Drawing.Size(59, 14);
-            // 
-            // layoutControlItem20
-            // 
-            this.layoutControlItem20.Control = this.btnPrintIRLabel;
-            this.layoutControlItem20.CustomizationFormText = "layoutControlItem20";
-            this.layoutControlItem20.Location = new System.Drawing.Point(340, 122);
-            this.layoutControlItem20.Name = "layoutControlItem20";
-            this.layoutControlItem20.Size = new System.Drawing.Size(178, 26);
-            this.layoutControlItem20.Text = "layoutControlItem20";
-            this.layoutControlItem20.TextSize = new System.Drawing.Size(0, 0);
-            this.layoutControlItem20.TextToControlDistance = 0;
-            this.layoutControlItem20.TextVisible = false;
             // 
             // gridShipList
             // 
@@ -756,28 +785,26 @@
             this.colBox5Qty.Visible = true;
             this.colBox5Qty.VisibleIndex = 7;
             // 
-            // btnPrintTSICheckingLabel
+            // chkToSample
             // 
-            this.btnPrintTSICheckingLabel.Enabled = false;
-            this.btnPrintTSICheckingLabel.Location = new System.Drawing.Point(530, 134);
-            this.btnPrintTSICheckingLabel.Name = "btnPrintTSICheckingLabel";
-            this.btnPrintTSICheckingLabel.Size = new System.Drawing.Size(175, 22);
-            this.btnPrintTSICheckingLabel.StyleController = this.layoutControl1;
-            this.btnPrintTSICheckingLabel.TabIndex = 18;
-            this.btnPrintTSICheckingLabel.Text = "打印TSI检查标签";
-            this.btnPrintTSICheckingLabel.Click += new System.EventHandler(this.btnPrintTSICheckingLabel_Click);
+            this.chkToSample.Location = new System.Drawing.Point(97, 134);
+            this.chkToSample.Name = "chkToSample";
+            this.chkToSample.Properties.Caption = "派给样办";
+            this.chkToSample.Size = new System.Drawing.Size(82, 19);
+            this.chkToSample.StyleController = this.layoutControl1;
+            this.chkToSample.TabIndex = 19;
             // 
-            // layoutControlItem21
+            // layoutControlItem22
             // 
-            this.layoutControlItem21.Control = this.btnPrintTSICheckingLabel;
-            this.layoutControlItem21.CustomizationFormText = "layoutControlItem21";
-            this.layoutControlItem21.Location = new System.Drawing.Point(518, 122);
-            this.layoutControlItem21.Name = "layoutControlItem21";
-            this.layoutControlItem21.Size = new System.Drawing.Size(179, 26);
-            this.layoutControlItem21.Text = "layoutControlItem21";
-            this.layoutControlItem21.TextSize = new System.Drawing.Size(0, 0);
-            this.layoutControlItem21.TextToControlDistance = 0;
-            this.layoutControlItem21.TextVisible = false;
+            this.layoutControlItem22.Control = this.chkToSample;
+            this.layoutControlItem22.CustomizationFormText = "layoutControlItem22";
+            this.layoutControlItem22.Location = new System.Drawing.Point(85, 122);
+            this.layoutControlItem22.Name = "layoutControlItem22";
+            this.layoutControlItem22.Size = new System.Drawing.Size(86, 23);
+            this.layoutControlItem22.Text = "layoutControlItem22";
+            this.layoutControlItem22.TextSize = new System.Drawing.Size(0, 0);
+            this.layoutControlItem22.TextToControlDistance = 0;
+            this.layoutControlItem22.TextVisible = false;
             // 
             // frmFQC
             // 
@@ -821,15 +848,17 @@
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem10)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem12)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem13)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem15)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem16)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem17)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem18)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem19)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem20)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem19)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem21)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem15)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem17)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem16)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem18)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridShipList)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem21)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkToSample.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutControlItem22)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -891,6 +920,8 @@
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem20;
         private DevExpress.XtraEditors.SimpleButton btnPrintTSICheckingLabel;
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem21;
+        private DevExpress.XtraEditors.CheckEdit chkToSample;
+        private DevExpress.XtraLayout.LayoutControlItem layoutControlItem22;
 
     }
 }

@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
+using MySql.Data.MySqlClient;
 
-using OldNamwahSystem.BO;
+using NamwahSystem.Model.Func;
+using NamwahSystem.Model.BO;
 
 namespace OldNamwahSystem
 {
@@ -18,16 +20,21 @@ namespace OldNamwahSystem
 
         private void btnLoadWH_Click(object sender, EventArgs e)
         {
-            List<Shipment> Shipments = Shipment.LoadListByMySQL("WHERE (OrderStatus = 'Waiting' OR OrderStatus = 'Ready' OR OrderStatus = 'TSI') AND SOType = 'SZINV'" , "");
-
-            BindingList<SoCompress> WHSoCompressList = SoCompress.CompressSO(Shipments);
-
-            foreach (SoCompress SoComp in WHSoCompressList)
+            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
             {
-                SoComp.IRNo = "From SS";
+                List<Shipment> Shipments = Shipment.LoadListByMySQL(Cnn , 
+                    "WHERE (OrderStatus = 'Waiting' OR OrderStatus = 'Ready' OR OrderStatus = 'TSI') AND SOType = 'SZINV'", "");    
+
+                BindingList<SoCompress> WHSoCompressList = SoCompress.CompressSO(Shipments);
+
+                foreach (SoCompress SoComp in WHSoCompressList)
+                {
+                    SoComp.IRNo = "From SS";
+                }
+
+                gridWHList.DataSource = WHSoCompressList;
             }
 
-            gridWHList.DataSource = WHSoCompressList;
             txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
             btnPrintBoxLabelFromWH.Enabled = true;
             btnPrintSelectedBoxLabelFromWH.Enabled = true;

@@ -54,6 +54,7 @@
             this.ColOrderDate = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColOrderStatus = new DevExpress.XtraGrid.Columns.GridColumn();
             this.ColInvoiceNo = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.ColRefNo = new DevExpress.XtraGrid.Columns.GridColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             this.splitContainerControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.cboStatus.Properties)).BeginInit();
@@ -162,7 +163,8 @@
             this.ColCarton,
             this.ColOrderDate,
             this.ColOrderStatus,
-            this.ColInvoiceNo});
+            this.ColInvoiceNo,
+            this.ColRefNo});
             styleFormatCondition1.Appearance.BackColor = System.Drawing.Color.Red;
             styleFormatCondition1.Appearance.Options.UseBackColor = true;
             styleFormatCondition1.ApplyToRow = true;
@@ -349,6 +351,12 @@
             this.ColInvoiceNo.Visible = true;
             this.ColInvoiceNo.VisibleIndex = 16;
             // 
+            // ColRefNo
+            // 
+            this.ColRefNo.Caption = "参考编码";
+            this.ColRefNo.FieldName = "RefNo";
+            this.ColRefNo.Name = "ColRefNo";
+            // 
             // frmShipment
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
@@ -394,5 +402,6 @@
         private DevExpress.XtraEditors.ComboBoxEdit cboStatus;
         private DevExpress.XtraEditors.LabelControl labelControl1;
         private DevExpress.XtraGrid.Columns.GridColumn ColInvoiceNo;
+        private DevExpress.XtraGrid.Columns.GridColumn ColRefNo;
     }
 }

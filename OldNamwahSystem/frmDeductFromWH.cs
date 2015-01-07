@@ -5,8 +5,8 @@ using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using Microsoft.VisualBasic;
-using OldNamwahSystem.BO;
-using OldNamwahSystem.Func;
+using NamwahSystem.Model.BO;
+using NamwahSystem.Model.Func;
 using MySql.Data.MySqlClient;
 
 namespace OldNamwahSystem
@@ -25,8 +25,11 @@ namespace OldNamwahSystem
 
         private void LoadShipment()
         {
-            gridShipment.DataSource = Shipment.LoadListByMySQL("WHERE (OrderStatus = 'Waiting' AND SOType = 'SZInv') ", "");
-            txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
+            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
+            {
+                gridShipment.DataSource = Shipment.LoadListByMySQL(Cnn, "WHERE (OrderStatus = 'Waiting' AND SOType = 'SZInv') ", "");
+                txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
+            }
         }
 
         private void frmDeductFromWH_Load(object sender, EventArgs e)
@@ -45,7 +48,10 @@ namespace OldNamwahSystem
             }
 
             Shipment Shipment = (Shipment)gridView1.GetRow(Rows[0]);
-            Shipment = Shipment.LoadMySQL(Shipment.OrderNo);
+            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
+            {
+                Shipment = Shipment.LoadMySQL(Cnn, Shipment.OrderNo);    
+            }
 
             if (Shipment.OrderStatus != "Waiting")
             {
@@ -133,7 +139,7 @@ namespace OldNamwahSystem
                 {
                     foreach (Shipment S in Shipments)
                     {
-                        Shipment Ship = Shipment.LoadMySQL(S.OrderNo);
+                        Shipment Ship = Shipment.LoadMySQL(CnnMySQL, S.OrderNo);
                         try
                         {
                             Ship.CnnMySQL = CnnMySQL;

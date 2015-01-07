@@ -7,9 +7,8 @@ using System.Text;
 using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
-using OldNamwahSystem.BO;
-using OldNamwahSystem.Func;
-
+using NamwahSystem.Model.BO;
+using NamwahSystem.Model.Func;
 namespace OldNamwahSystem
 {
     public partial class frmSalesOrder : DevExpress.XtraEditors.XtraForm
@@ -65,7 +64,7 @@ namespace OldNamwahSystem
             List<SalesOrderLine> SOLines = SalesOrderLine.LoadListMySQL(StrSQL, "");
 
             if (bool.Parse(chkSplitOrder.EditValue.ToString()))
-                SOLines = Func.SplitOrder.SplitSOLineByDateAndPriority(SOLines);
+                SOLines = SplitOrder.SplitSOLineByPromisedDateAndPriority(SOLines);
 
             gridSOLine.DataSource = SOLines;
             txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
@@ -81,7 +80,6 @@ namespace OldNamwahSystem
             if (Glob.UserName != @"NWNET\IT002" &&
                 Glob.UserName != @"NWNET\KENNETH")
             {
-                //ColPrice.View = false;
                 ColPrice.Visible = false; 
             }
         }

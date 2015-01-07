@@ -38,6 +38,10 @@
             this.btnSOLines = new DevExpress.XtraEditors.SimpleButton();
             this.btnStringTest = new DevExpress.XtraEditors.SimpleButton();
             this.btnIsNullOrEmpty = new DevExpress.XtraEditors.SimpleButton();
+            this.btnEnum = new DevExpress.XtraEditors.SimpleButton();
+            this.btnTestFunction = new DevExpress.XtraEditors.SimpleButton();
+            this.btnWHHistory = new DevExpress.XtraEditors.SimpleButton();
+            this.simpleButton2 = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this.txtStringList.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtCartonNo.Properties)).BeginInit();
             this.SuspendLayout();
@@ -127,11 +131,50 @@
             this.btnIsNullOrEmpty.Text = "String.IsNullOrEmpty";
             this.btnIsNullOrEmpty.Click += new System.EventHandler(this.btnIsNullOrEmpty_Click);
             // 
+            // btnEnum
+            // 
+            this.btnEnum.Location = new System.Drawing.Point(358, 168);
+            this.btnEnum.Name = "btnEnum";
+            this.btnEnum.Size = new System.Drawing.Size(118, 56);
+            this.btnEnum.TabIndex = 8;
+            this.btnEnum.Text = "Enum";
+            this.btnEnum.Click += new System.EventHandler(this.btnEnum_Click);
+            // 
+            // btnTestFunction
+            // 
+            this.btnTestFunction.Location = new System.Drawing.Point(42, 230);
+            this.btnTestFunction.Name = "btnTestFunction";
+            this.btnTestFunction.Size = new System.Drawing.Size(134, 56);
+            this.btnTestFunction.TabIndex = 8;
+            this.btnTestFunction.Text = "Test Function";
+            this.btnTestFunction.Click += new System.EventHandler(this.btnTestFunction_Click);
+            // 
+            // btnWHHistory
+            // 
+            this.btnWHHistory.Location = new System.Drawing.Point(197, 230);
+            this.btnWHHistory.Name = "btnWHHistory";
+            this.btnWHHistory.Size = new System.Drawing.Size(134, 56);
+            this.btnWHHistory.TabIndex = 8;
+            this.btnWHHistory.Text = "WHHistory ";
+            this.btnWHHistory.Click += new System.EventHandler(this.btnWHHistory_Click);
+            // 
+            // simpleButton2
+            // 
+            this.simpleButton2.Location = new System.Drawing.Point(359, 230);
+            this.simpleButton2.Name = "simpleButton2";
+            this.simpleButton2.Size = new System.Drawing.Size(134, 56);
+            this.simpleButton2.TabIndex = 8;
+            this.simpleButton2.Text = "simpleButton1";
+            // 
             // frmTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(702, 322);
+            this.Controls.Add(this.simpleButton2);
+            this.Controls.Add(this.btnWHHistory);
+            this.Controls.Add(this.btnTestFunction);
+            this.Controls.Add(this.btnEnum);
             this.Controls.Add(this.btnIsNullOrEmpty);
             this.Controls.Add(this.btnStringTest);
             this.Controls.Add(this.btnSOLines);
@@ -163,5 +206,9 @@
         private DevExpress.XtraEditors.SimpleButton btnSOLines;
         private DevExpress.XtraEditors.SimpleButton btnStringTest;
         private DevExpress.XtraEditors.SimpleButton btnIsNullOrEmpty;
+        private DevExpress.XtraEditors.SimpleButton btnEnum;
+        private DevExpress.XtraEditors.SimpleButton btnTestFunction;
+        private DevExpress.XtraEditors.SimpleButton btnWHHistory;
+        private DevExpress.XtraEditors.SimpleButton simpleButton2;
     }
 }

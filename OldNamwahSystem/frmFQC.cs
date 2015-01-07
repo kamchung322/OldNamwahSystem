@@ -4,14 +4,16 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
-using OldNamwahSystem.BO;
-using OldNamwahSystem.Func;
+
+using NamwahSystem.Model.Func;
+using NamwahSystem.Model.BO;
+using MySql.Data.MySqlClient;
 
 namespace OldNamwahSystem
 {
-    public partial class frmFQC : DevExpress.XtraEditors.XtraForm
+    public partial class frmFQC : XtraForm
     {
-        JobSchedule JS;
+        ProdOrder JS;
         BindingList<SoCompress> SOCompressList;
 
         public frmFQC()
@@ -40,7 +42,7 @@ namespace OldNamwahSystem
 
             try
             {
-                JS = JobSchedule.LoadExchange(txtJSNo.Text);
+                JS = ProdOrder.LoadExchange(txtJSNo.Text);
 
                 if (JS.ActiveLocation != "Q")
                 {
@@ -115,6 +117,9 @@ namespace OldNamwahSystem
 
         private bool ValidateInputResult()
         {
+            if (Glob.IsDebugMode)
+                return true;
+
             if (int.Parse(txtShipQty.Text) < 0)
             {
                 XtraMessageBox.Show(string.Format("出货数量 ({0}) 不能少于0, 请更正.", txtShipQty.Text), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -182,14 +187,12 @@ namespace OldNamwahSystem
             {
                 txtPartNo.Properties.ReadOnly = false;
                 txtShipQty.Properties.ReadOnly = false;
-                //btnTest.Visible = true;
+                btnInputResult.Enabled = true;
             }
         }
 
         private void btnInputResult_Click(object sender, EventArgs e)
         {
-            SOCompressList = new BindingList<SoCompress>();
-
             if (ValidateInputResult() == false)
             {
                 return;
@@ -202,22 +205,29 @@ namespace OldNamwahSystem
                 btnOK.Enabled = true;
                 return;
             }
-
-            UpdateBoxQtyToItem(txtPartNo.Text, int.Parse(txtBoxQty.Text));
-
-            if (UpdateFQCJS() == false)
+            
+            try
             {
-                return;
+                UpdateBoxQtyToItem(txtPartNo.Text, int.Parse(txtBoxQty.Text));
+                UpdateFQCJS();
             }
+            catch (Exception Ex)
+            {
+                XtraMessageBox.Show(Ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            SOCompressList = new BindingList<SoCompress>();
+            double RemainQty = double.Parse(txtShipQty.Text);
 
             if (chkAllInputWH.Checked == true)
             {
-                ShipToWH(int.Parse(txtShipQty.Text));
+                ShipToWH(RemainQty);
             }
             else
             {
-                if (ShipToSalesOrder() == false)
-                    return;
+                ShipToSalesOrder(txtPartNo.Text, ref RemainQty);
+                if (RemainQty > 0)
+                    ShipToWH(RemainQty);
             }
 
             gridShipList.DataSource = SOCompressList;
@@ -310,40 +320,35 @@ namespace OldNamwahSystem
             }
         }
 
-        private bool UpdateFQCJS()
+        private void UpdateFQCJS()
         {
             if (Glob.IsDebugMode)
-                return true;
+                return ;
 
             if (JS == null)
-            {
-                XtraMessageBox.Show("系统问题, 请退出重试 !!", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
+                throw new Exception("系统问题, 请退出重试 !!");
 
             JS.ActiveQty = int.Parse(txtShipQty.Text);
             JS.FQCInspectionDate = DateTime.Now;
             JS.FQCInspector = txtInspector.Text;
             JS.IrNo = txtIRNo.Text;
-            JS.UpdateFQC();
-
-            return true;
+            JS.UpdateToExchange();
         }
 
         private void ShipToWH(double WHQty)
         {
-            WHHistory WHHistory = new WHHistory();
-            WHHistory.ItemNo = txtPartNo.Text;
-            WHHistory.ItemName = txtPartName.Text;
-            WHHistory.ItemType = txtPartType.Text;
-            WHHistory.Qty = WHQty;
-            WHHistory.RefNo = txtJSNo.Text;
-            WHHistory.RefType = "SS";
-            WHHistory.IO = "Input";
-            WHHistory.Supplier = "FQC";
-            WHHistory.Remark = txtRevision.Text;
-            WHHistory.CreatedBy = Glob.UserName;
-            WHHistory.InsertToExchange();
+
+            ProdOrderFinish ProdOrderFinish = new ProdOrderFinish();
+            ProdOrderFinish.ItemNo = txtPartNo.Text;
+            ProdOrderFinish.ItemName = txtPartName.Text;
+            ProdOrderFinish.ItemType = txtPartType.Text;
+            ProdOrderFinish.OKQty = WHQty;
+            ProdOrderFinish.RefNo = txtJSNo.Text;
+            ProdOrderFinish.IOType = WHIOType.Input;
+            ProdOrderFinish.Supplier = "FQC";
+            ProdOrderFinish.Remark = txtRevision.Text;
+            ProdOrderFinish.CreatedBy = Glob.UserName;
+            ProdOrderFinish.Save();
 
             SoCompress SoComp = new SoCompress();
             SoComp.Item = Item.Load(txtPartNo.Text);
@@ -355,33 +360,43 @@ namespace OldNamwahSystem
             SOCompressList.Add(SoComp);
         }
 
-        private bool ShipToSalesOrder()
+        private bool ShipToSalesOrder(string ItemNo, ref double RemainQty)
         {
-            string ItemNo = txtPartNo.Text;
-            Dictionary<string, SalesOrderLine> SOLines = SalesOrderLine.LoadDictMySQL(string.Format("WHERE NOT( OrderStatus = 'Complete') AND Priority >= 0 AND ItemNo = '{0}' ", ItemNo)
-                            , " ORDER BY  PromisedDate ASC , Priority DESC ");
-            double RemainQty = double.Parse(txtShipQty.Text);
-
-            if (SOLines.Count > 0)
+            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
             {
-                List<Shipment> Shipments = Shipment.LoadListByMySQL(string.Format("WHERE ( OrderStatus = 'Ready' OR OrderStatus = 'Waiting' OR OrderStatus = 'TSI' ) AND ItemNo = '{0}' ", ItemNo), "");
-                SalesOrderLine.CalcActualBalance(Shipments, SOLines);
-                List<Shipment> NewShipments = SalesOrderLine.CreateShipmentOrders(ref RemainQty, SOLines, txtJSNo.Text);
-                SOCompressList = SoCompress.CompressSO(NewShipments);
+                Dictionary<string, SalesOrderLine> SOLines;
 
-                foreach (SoCompress SoComp in SOCompressList)
+                if (chkToSample.Checked == true)
                 {
-                    SoComp.IRNo = txtIRNo.Text;
-                    SoComp.Inspector = txtInspector.Text;
-                    SoComp.InspectSpec = txtInspectSpec.Text;
-                    SoComp.InspectStatus = txtInspectStatus.Text;
-                    SoComp.JSNo = txtJSNo.Text;
+                    SOLines = SalesOrderLine.LoadDictMySQL(string.Format("WHERE NOT( OrderStatus = 'Complete') AND Priority > 10 AND ItemNo = '{0}' ", ItemNo)
+                                    , " ORDER BY NeedDate ASC , Priority DESC ");
+                }
+                else
+                {
+                    SOLines = SalesOrderLine.LoadDictMySQL(string.Format("WHERE NOT( OrderStatus = 'Complete') AND Priority >= 0 AND ItemNo = '{0}' ", ItemNo)
+                                    , " ORDER BY NeedDate ASC , Priority DESC ");
+                }
+
+                if (SOLines.Count > 0)
+                {
+
+                    List<Shipment> Shipments = Shipment.LoadListByMySQL(Cnn , 
+                        string.Format("WHERE ( OrderStatus = 'Ready' OR OrderStatus = 'Waiting' OR OrderStatus = 'TSI' ) AND ItemNo = '{0}' ", ItemNo), "");
+                    SalesOrderLine.CalcActualBalance(Shipments, SOLines);
+                    Dictionary<string, double> ShipmentToBeCreated = SalesOrderLine.CalcActualShipment(ref RemainQty, SOLines);
+                    List<Shipment> NewShipments = SalesOrderLine.CreateShipmentOrders(SOLines, ShipmentToBeCreated, txtJSNo.Text);
+                    SOCompressList = SoCompress.CompressSO(NewShipments);
+
+                    foreach (SoCompress SoComp in SOCompressList)
+                    {
+                        SoComp.IRNo = txtIRNo.Text;
+                        SoComp.Inspector = txtInspector.Text;
+                        SoComp.InspectSpec = txtInspectSpec.Text;
+                        SoComp.InspectStatus = txtInspectStatus.Text;
+                        SoComp.JSNo = txtJSNo.Text;
+                    }
                 }
             }
-
-            if (RemainQty > 0)
-                ShipToWH(RemainQty);
-
             return true;
         }
 
