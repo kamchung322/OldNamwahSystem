@@ -30,12 +30,8 @@ namespace OldNamwahSystem
 
         private void LoadShipment()
         {
-            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
-            {
-                gridShipment.DataSource = Shipment.LoadListByMySQL(Cnn , 
-                    "WHERE (OrderStatus = 'Ready' OR OrderStatus = 'TSI' OR OrderStatus = 'Waiting' OR OrderStatus = 'Active') ", "Order By OrderNo");
-                txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
-            }
+            gridShipment.DataSource = DBHelper.GetShipment("WHERE (OrderStatus = 'Ready' OR OrderStatus = 'TSI' OR OrderStatus = 'Waiting' OR OrderStatus = 'Active') ");
+            txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
         }
 
         private void ShowError(string ErrMsg)
@@ -58,9 +54,8 @@ namespace OldNamwahSystem
 
             using (MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL())
             {
-                List<Shipment> Shipments = Shipment.LoadListByMySQL(CnnMySQL,
-                    string.Format("WHERE (SalesOrderNo = '{0}' AND CustomerItemNo = '{1}' AND OrderStatus = 'Ready' )", SalesOrderNo, ItemNo),
-                    "ORDER BY OrderDate ASC");
+                List<Shipment> Shipments = DBHelper.GetShipment(
+                    string.Format("WHERE (SalesOrderNo = '{0}' AND CustomerItemNo = '{1}' AND OrderStatus = 'Ready' )", SalesOrderNo, ItemNo));
 
                 foreach (Shipment ShipOrder in Shipments)
                 {

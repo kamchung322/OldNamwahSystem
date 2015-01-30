@@ -20,20 +20,15 @@ namespace OldNamwahSystem
 
         private void btnLoadWH_Click(object sender, EventArgs e)
         {
-            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
+            List<Shipment> Shipments = DBHelper.GetShipment("WHERE (OrderStatus = 'Waiting' OR OrderStatus = 'Ready' OR OrderStatus = 'TSI') AND SOType = 'SZINV'");    
+            BindingList<SoCompress> WHSoCompressList = SoCompress.CompressSO(Shipments);
+
+            foreach (SoCompress SoComp in WHSoCompressList)
             {
-                List<Shipment> Shipments = Shipment.LoadListByMySQL(Cnn , 
-                    "WHERE (OrderStatus = 'Waiting' OR OrderStatus = 'Ready' OR OrderStatus = 'TSI') AND SOType = 'SZINV'", "");    
-
-                BindingList<SoCompress> WHSoCompressList = SoCompress.CompressSO(Shipments);
-
-                foreach (SoCompress SoComp in WHSoCompressList)
-                {
-                    SoComp.IRNo = "From SS";
-                }
-
-                gridWHList.DataSource = WHSoCompressList;
+                SoComp.IRNo = "From SS";
             }
+
+            gridWHList.DataSource = WHSoCompressList;
 
             txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
             btnPrintBoxLabelFromWH.Enabled = true;

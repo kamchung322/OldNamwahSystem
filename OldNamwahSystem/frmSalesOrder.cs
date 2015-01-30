@@ -61,7 +61,7 @@ namespace OldNamwahSystem
                 StrSQL = string.Format(" WHERE ({0})", SBSQL.ToString().Substring(5, SBSQL.ToString().Length - 5));
             }
 
-            List<SalesOrderLine> SOLines = SalesOrderLine.LoadListMySQL(StrSQL, "");
+            List<SalesOrderLine> SOLines =  DBHelper.GetSalesOrder(StrSQL, "");
 
             if (bool.Parse(chkSplitOrder.EditValue.ToString()))
                 SOLines = SplitOrder.SplitSOLineByPromisedDateAndPriority(SOLines);

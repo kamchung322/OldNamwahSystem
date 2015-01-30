@@ -25,11 +25,8 @@ namespace OldNamwahSystem
 
         private void LoadShipment()
         {
-            using (MySqlConnection Cnn = ServerHelper.ConnectToMySQL())
-            {
-                gridShipment.DataSource = Shipment.LoadListByMySQL(Cnn, "WHERE (OrderStatus = 'Waiting' AND SOType = 'SZInv') ", "");
-                txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
-            }
+            gridShipment.DataSource = DBHelper.GetShipment("WHERE (OrderStatus = 'Waiting' AND SOType = 'SZInv') ");
+            txtTime.Text = string.Format("最后更新时间 : {0}", DateTime.Now.ToString("yy-MM-dd hh:mm:ss"));
         }
 
         private void frmDeductFromWH_Load(object sender, EventArgs e)

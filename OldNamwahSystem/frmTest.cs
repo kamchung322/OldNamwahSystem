@@ -73,10 +73,9 @@ namespace OldNamwahSystem
 
         private void btnSOLines_Click(object sender, EventArgs e)
         {
-            List<SalesOrderLine> SOLines = SalesOrderLine.LoadListMySQL("WHERE ItemNo = '921370306' AND  OrderStatus = 'Waiting' ", "");
-            MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL();
+            List<SalesOrderLine> SOLines = DBHelper.GetSalesOrder("WHERE ItemNo = '921370306' AND  OrderStatus = 'Waiting' ", "");
+            //MySqlConnection CnnMySQL = ServerHelper.ConnectToMySQL();
             //SOLines[0].CnnMySQL = CnnMySQL;
-
             //SOLines[0].UpdateAllRecord();
             
             //SOLines = SplitOrder.SplitSOLineByPromisedDateAndPriority(SOLines);
@@ -176,6 +175,21 @@ namespace OldNamwahSystem
                 }
                 MessageBox.Show("OK");
             }
+        }
+
+        private void btnTestEF_Click(object sender, EventArgs e)
+        {
+            using (NamwahContext Context = new NamwahContext())
+            {
+                SalesOrderLine soLine = Context.SalesOrderLines.First(c => c.CustomerItemNo == "905771372");
+
+                MessageBox.Show(soLine.Customer);
+            }
+        }
+
+        private void btnLoadSalesOrder_Click(object sender, EventArgs e)
+        {
+            gridControl1.DataSource = DBHelper.GetOpenSalesOrderByItemNo(txtItemNo.Text.Trim(), -100);
         }
 
     }
