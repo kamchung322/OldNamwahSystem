@@ -31,14 +31,6 @@ namespace NamwahSystem.Model.BO
             return Cnn.Query<Shipment>(StrSQL).SingleOrDefault();
         }
 
-        public static List<Shipment> LoadListByMySQL(MySqlConnection Cnn, string StrFilter, string StrOrderBy)
-        {
-            Logger.For(typeof(Shipment)).Info("开始");
-            string StrSQL = string.Format("SELECT * FROM Shipment {0} {1}", StrFilter, StrOrderBy);
-            Logger.For(typeof(Shipment)).Info("结束");
-            return Cnn.Query<Shipment>(StrSQL).ToList<Shipment>();
-        }
-
         public void DeductWH()
         {
             if (OrderStatus != "Waiting")
@@ -179,7 +171,7 @@ namespace NamwahSystem.Model.BO
 
         private void AddSOLineArrivedQty(double SQty)
         {
-            SalesOrderLine SOLine = SalesOrderLine.LoadMySQL(SalesOrderNo, SalesOrderIndex);
+            SalesOrderLine SOLine = DBHelper.GetSalesOrderByIndex(SalesOrderNo, SalesOrderIndex);
 
             if (SOLine == null)
             {

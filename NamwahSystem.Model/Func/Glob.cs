@@ -19,7 +19,7 @@ namespace NamwahSystem.Model.Func
 
     public class Glob
     {
-        public static bool IsDebugMode = false;
+        public static bool IsDebugMode = true;
         public static string UserName = "Nam Wah System";
         public static string DefaultDatabase = "oldnamwahsystem"; // "test_nws"; //"testoldsystem"; "oldnamwahsystem"
 

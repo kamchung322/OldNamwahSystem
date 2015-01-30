@@ -5,51 +5,20 @@ using System.Text;
 using Dapper;
 using MySql.Data.MySqlClient;
 using NamwahSystem.Model.Func;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NamwahSystem.Model.BO
 {
+    [Table("SalesOrderLine")]
     public class SalesOrderLine
     {
         public const string SOLINEPATH = "http://nwszmail/public/namwah/sales/timex/purchaseorders/";
         public MySqlConnection CnnMySQL;
 
-        public static Dictionary<string, SalesOrderLine> LoadDictMySQL(string StrFilter, string StrOrderBy)
-        {
-            Logger.For(typeof(SalesOrderLine)).Info("开始");
-            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
-            {
-                string StrSQL = string.Format("SELECT * FROM SalesOrderLine {0} {1}", StrFilter, StrOrderBy);
-                Logger.For(typeof(SalesOrderLine)).Info("结束");
-                return cnn.Query<SalesOrderLine>(StrSQL).ToDictionary<SalesOrderLine, string>(k => string.Format("{0}-{1}", k.OrderNo, k.OrderIndex));
-            }
-        }
-
-        public static List<SalesOrderLine> LoadListMySQL(string StrFilter, string StrOrderBy)
-        {
-            Logger.For(typeof(SalesOrderLine)).Info("开始");
-            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
-            {
-                string StrSQL = string.Format("SELECT * FROM SalesOrderLine {0} {1}", StrFilter, StrOrderBy);
-                Logger.For(typeof(SalesOrderLine)).Info("结束");
-                return cnn.Query<SalesOrderLine>(StrSQL).ToList<SalesOrderLine>();
-            }
-        }
-
-        public static SalesOrderLine LoadMySQL(string OrderNo, int OrderIndex)
-        {
-            Logger.For(typeof(SalesOrderLine)).Info("开始");
-            using (MySqlConnection cnn = ServerHelper.ConnectToMySQL())
-            {
-                string StrSQL = string.Format("SELECT * FROM SalesOrderLine WHERE ( OrderNo = '{0}' AND OrderIndex = {1} ) ", OrderNo, OrderIndex);
-                Logger.For(typeof(SalesOrderLine)).Info("结束");
-                return cnn.Query<SalesOrderLine>(StrSQL).SingleOrDefault();
-            }
-        }
-
-        public static Dictionary<string, double> CalcActualShipment(ref double RemainQty, Dictionary<string, SalesOrderLine> SOLines)
+        public static Dictionary<string, double> CalcActualShipment(List<SalesOrderLine> SOLines, ref double RemainQty)
         {
             Dictionary<string, double> DictIssueQty = new Dictionary<string, double>();
-            List<SalesOrderLine> SplitSOLine = SplitOrder.SplitSOLineByPromisedDateAndPriority(SOLines.Values.ToList());
+            List<SalesOrderLine> SplitSOLine = SplitOrder.SplitSOLineByPromisedDateAndPriority(SOLines);
 
             SplitSOLine = SplitOrder.SortSOLinesByPromisedDateAndPriority(SplitSOLine);
 
@@ -81,18 +50,19 @@ namespace NamwahSystem.Model.BO
             return DictIssueQty;
         }
 
-        public static List<Shipment> CreateShipmentOrders(Dictionary<string, SalesOrderLine> SOLines,
+        public static List<Shipment> CreateShipmentOrders(List<SalesOrderLine> SOLines,
                                                           Dictionary<string, double> DictIssueQty,
                                                           string RefNo)
         {
+            Dictionary<string, SalesOrderLine> SOLines2 = SOLines.ToDictionary<SalesOrderLine, string>(k => string.Format("{0}-{1}", k.OrderNo, k.OrderIndex));
             List<Shipment> Shipments = new List<Shipment>();
             foreach (KeyValuePair<string, double> KVP in DictIssueQty)
             {
-                if (SOLines.ContainsKey(KVP.Key))
+                if (SOLines2.ContainsKey(KVP.Key))
                 {
                     try
                     {
-                        SalesOrderLine SOLine = SOLines[KVP.Key];
+                        SalesOrderLine SOLine = SOLines2[KVP.Key];
                         Shipment Shipment = SOLine.CreateShipmentOrder(KVP.Value, RefNo);
                         Shipments.Add(Shipment);
                     }
@@ -104,29 +74,6 @@ namespace NamwahSystem.Model.BO
             }
 
             return Shipments;
-        }
-
-        public static void CalcActualBalance(List<Shipment> Shipments, Dictionary<string, SalesOrderLine> SOLines)
-        {
-            foreach (Shipment ShipOrder in Shipments)
-            {
-                if (ShipOrder.OrderStatus != "Active")
-                {
-                    string Key = string.Format("{0}-{1}", ShipOrder.SalesOrderNo, ShipOrder.SalesOrderIndex);
-                    SalesOrderLine SOLine;
-
-                    if (SOLines.ContainsKey(Key))
-                    {
-                        SOLine = SOLines[Key];
-                        SOLine.PendingShipQty = SOLine.PendingShipQty + ShipOrder.MoveQty;
-
-                        if (SOLine.BalQty <= 0)
-                        {
-                            SOLines.Remove(Key);
-                        }
-                    }
-                }
-            }
         }
 
         public void InitPList()
